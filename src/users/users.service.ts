@@ -5,12 +5,11 @@ import { User } from './interfaces/user.interface';
 export class UsersService {
 
     private readonly users: User[] = [
-        {
-            id: 0,
-            lastName: "Doe",
-            firstName: "John",
-            age: 30
-        }
+        { id: 0, lastName: "Doe", firstName: "John", age: 30},
+        { id: 1, lastName: "Kim", firstName: "Albet", age: 17},
+        { id: 2, lastName: "Sow", firstName: "Ali", age: 24},
+        { id: 3, lastName: "Tre", firstName: "Andre", age: 9},
+        { id: 4, lastName: "Doe", firstName: "Jack", age: 48},
     ]
 
     public async createUser(lastName: string, firstName: string, age: number): Promise<User> {
@@ -32,7 +31,7 @@ export class UsersService {
     }
 
     public async updateUser(userId: number, updateUserDto): Promise<User> {
-        const user = this.users[userId];
+        const user = this.users.filter(user => user.id === userId)[0];
         if (updateUserDto.lastName) {
             user.lastName = updateUserDto.lastName;
         }
@@ -46,8 +45,13 @@ export class UsersService {
         return this.users[userId];
     }
 
-    public async deleteUser(userId: number): Promise<User> {
-        return this.users.splice(userId, 1)[0];
+    public async deleteUser(userId: number): Promise<boolean> {
+        const user = this.users.filter(user => user.id === userId)[0];
+        if (!user) {
+            return false;
+        }
+        this.users.splice(userId, 1)[0];
+        return true;
     }
 
 }

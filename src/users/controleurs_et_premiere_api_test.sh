@@ -38,12 +38,12 @@ delete() {
 
 get http://localhost:3000/user/all 200
 get http://localhost:3000/user/0 200
-get http://localhost:3000/user/1 404
+get http://localhost:3000/user/5 404
 post http://localhost:3000/user/create 201 "firstName=Jane&lastName=Doe"
-get http://localhost:3000/user/1 200
-put http://localhost:3000/user/update/1 200 "firstName=Janette&lastName=Doe"
-delete http://localhost:3000/user/delete/1 200
-get http://localhost:3000/user/1 404
+get http://localhost:3000/user/5 200
+put http://localhost:3000/user/update/5 200 "firstName=Janette&lastName=Doe"
+delete http://localhost:3000/user/delete/5 200
+get http://localhost:3000/user/5 404
 
 
 # Les tests à faire avant de lancer ce fichier de test :
