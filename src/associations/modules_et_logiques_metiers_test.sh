@@ -62,8 +62,10 @@ delete http://localhost:3000/user/delete/5 200
 
 # curl http://localhost:3000/association/all
 
+
+# curl -X POST -d 'idUsers[]=1&idUsers[]=2&idUsers[]=3&idUsers[]=4&name=Assoc1' http://localhost:3000/association/create
 # curl -X POST -d 'idUsers[]=0&idUsers[]=2&idUsers[]=3&idUsers[]=4&name=Assoc2' http://localhost:3000/association/create
-# curl -X POST -d 'idUsers[]=1&idUsers[]=3&name=Assoc3' http://localhost:3000/association/create
+# curl -X POST -d 'idUsers[]=1&idUsers[]=3&idUsers=5&name=Assoc3' http://localhost:3000/association/create
 # curl -X POST -d 'idUsers[]=0&idUsers[]=2&idUsers[]=4&name=Assoc4' http://localhost:3000/association/create
 
 # curl http://localhost:3000/association/all
@@ -77,3 +79,5 @@ delete http://localhost:3000/user/delete/5 200
 # curl -X DELETE http://localhost:3000/association/delete/1
 # curl http://localhost:3000/association/1
 # curl http://localhost:3000/association/all
+
+# curl http://localhost:3000/association/1/members

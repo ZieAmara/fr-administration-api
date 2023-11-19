@@ -32,11 +32,11 @@ export class UsersController {
 
     @Put('update/:id')
     public async updateUser(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-        try {
-            return await this.usersService.updateUser(id, updateUserDto);
-        } catch (error) {
+        const user = await this.usersService.updateUser(id, updateUserDto);
+        if (!user) {
             throw new HttpException(`Could not find a user with the id ${id}`, HttpStatus.NOT_FOUND)
         }
+        return user;
     }
 
 

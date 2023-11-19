@@ -54,6 +54,7 @@ get http://localhost:3000/user/5 404
 # curl -X POST -d 'firstName=Zie&lastName=Amara&age=26' http://localhost:3000/user/create
 # curl -X POST -d 'firstName=Kim&lastName=Ray&age=17' http://localhost:3000/user/create
 # curl -X POST -d 'firstName=Sow&lastName=Ali&age=9' http://localhost:3000/user/create
+# curl -X POST -d 'firstName=John&lastName=Dri&age=30' http://localhost:3000/user/create
 
 # curl http://localhost:3000/user/all
 # curl http://localhost:3000/user/1
