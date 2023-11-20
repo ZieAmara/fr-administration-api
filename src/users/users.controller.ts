@@ -76,7 +76,7 @@ export class UsersController {
         if (!user) {
             throw new HttpException(`Could not find a user with the id ${id}`, HttpStatus.NOT_FOUND)
         }
-        return user;
+        return user ;
     }
 
 
