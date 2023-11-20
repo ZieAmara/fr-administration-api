@@ -11,9 +11,7 @@ export class UsersService {
     ) {}
 
     public async createUser(lastName: string, firstName: string, age: number): Promise<User> {
-        const id = (await this.userRepository.find()).length;
         const user = this.userRepository.create({
-            id: id, 
             lastName: lastName, 
             firstName: 
             firstName, 
@@ -33,7 +31,7 @@ export class UsersService {
 
     public async updateUser(userId: number, updateUserDto): Promise<User> {
         const user = this.userRepository.findOne({where: {id: userId}});
-        if (user) {
+        if (await user) {
             if (updateUserDto.lastName) {
                 (await user).lastName = updateUserDto.lastName;
             }
@@ -52,17 +50,10 @@ export class UsersService {
 
     public async deleteUser(userId: number): Promise<boolean> {
         const user = this.userRepository.findOne({where: {id: userId}});
-        if (user) {
+        if (await user) {
             this.userRepository.delete(userId);
-            await this.updateUsersIDs();
             return true;    
         }
         return false;
     }
-
-    private async updateUsersIDs(): Promise<void> {
-        await this.userRepository.query(`SET @counter = 0;`);
-        await this.userRepository.query(`UPDATE user SET id = @counter := @counter + 1 WHERE id > 0;`);
-    }
-
 }
