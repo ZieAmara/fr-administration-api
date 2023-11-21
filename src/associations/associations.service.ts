@@ -19,13 +19,13 @@ export class AssociationsService {
         const associationCreated = this.associationsRepository.create({
             name: createAssociationDto.name
         });
-        const idUsersValide = await Promise.all(
+        const users = await Promise.all(
             createAssociationDto.idUsers.map(async (idUser) => {
                 const user = await this.usersService.getUserById(+idUser);
-                return user? +idUser : null;
+                return user? user : null;
             })
         )
-        associationCreated.idUsers = idUsersValide.filter(id => id !== null);
+        associationCreated.Users = users.filter(user => user !== null);
         await this.associationsRepository.save(associationCreated);
         return associationCreated;
     }
@@ -40,26 +40,20 @@ export class AssociationsService {
 
     public async getMembersOfAssociation(associationId: number): Promise<User[]> {
         const association = await this.associationsRepository.findOne({where: {id: associationId}});
-        const members = await Promise.all(
-            association.idUsers.map(async (idUser) => {
-                const user = await this.usersService.getUserById(+idUser);
-                return user;
-            })
-        );
-        return members;
+        return association.Users;
     }
 
     public async updateAssociation(associationId: number, association: UpdateAssociationDto): Promise<Association> {
         const associationUpdated = this.associationsRepository.findOne({where: {id: associationId}});
         if (await associationUpdated) {
             if (association.idUsers) {
-                const idUsersValide = await Promise.all(
+                const users = await Promise.all(
                     association.idUsers.map(async (idUser) => {
                         const user = await this.usersService.getUserById(+idUser);
-                        return user? +idUser : null;
+                        return user? user : null;
                     })
                 );
-                (await associationUpdated).idUsers = idUsersValide.filter(id => id !== null);
+                (await associationUpdated).Users = users.filter(user => user !== null);
             }
             if (association.name) {
                 (await associationUpdated).name = association.name

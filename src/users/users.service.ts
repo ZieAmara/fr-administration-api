@@ -15,7 +15,9 @@ export class UsersService {
         const user = this.userRepository.create({
             lastName: createUserDto.lastName, 
             firstName: createUserDto.firstName, 
-            age: createUserDto.age>0? createUserDto.age : 0
+            age: createUserDto.age>0? createUserDto.age : 0,
+            userName: createUserDto.userName,
+            userPassword: createUserDto.userPassword
         });
         await this.userRepository.save(user);
         return user;

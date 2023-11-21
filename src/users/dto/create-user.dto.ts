@@ -22,4 +22,19 @@ export class CreateUserDto {
         example: 30,
     })
     age: number
+
+    @ApiProperty({
+        type: String,
+        description: "The username of the user",
+        example: "johndoe",
+        uniqueItems: true,
+    })
+    userName: string
+
+    @ApiProperty({
+        type: String,
+        description: "The password of the user",
+        example: "password",
+    })
+    userPassword: string
 }
