@@ -31,6 +31,10 @@ export class UsersService {
         return await this.userRepository.findOne({where: {id: userId}});
     }
 
+    public async getUserByUserName(userName: string): Promise<User> {
+        return await this.userRepository.findOne({where: {userName: userName}});
+    }
+
     public async updateUser(userId: number, updateUserDto): Promise<User> {
         const user = this.userRepository.findOne({where: {id: userId}});
         if (await user) {
@@ -42,6 +46,12 @@ export class UsersService {
             }
             if (updateUserDto.age) {
                 (await user).age = updateUserDto.age > 0 ? updateUserDto.age : 0;
+            }
+            if (updateUserDto.userName) {
+                (await user).userName = updateUserDto.userName;
+            }
+            if (updateUserDto.userPassword) {
+                (await user).userPassword = updateUserDto.userPassword;
             }
 
             await this.userRepository.save(await user);

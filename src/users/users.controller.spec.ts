@@ -44,10 +44,12 @@ describe('UsersController', () => {
         id: 0,
         lastName: 'Doe',
         firstName: 'John',
-        age: 30
+        age: 30,
+        userName: 'john.doe',
+        userPassword: 'password'
       });
       jest.spyOn(usersService, 'createUser').mockImplementation(() => resultExpected);
-      expect(await usersController.createUser({lastName: 'Doe', firstName: 'John', age: 30})).toBe(await resultExpected);
+      expect(await usersController.createUser({lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', userPassword: 'password'})).toBe(await resultExpected);
     });
   });
 
@@ -57,7 +59,9 @@ describe('UsersController', () => {
         id: 0,
         lastName: 'Doe',
         firstName: 'John',
-        age: 30
+        age: 30,
+        userName: 'john.doe',
+        userPassword: 'password'
       }]);
       jest.spyOn(usersService, 'getAllUsers').mockImplementation(() => resultExpected);
       expect(await usersController.getAllUsers()).toBe(await resultExpected);
@@ -70,7 +74,9 @@ describe('UsersController', () => {
         id: 0,
         lastName: 'Doe',
         firstName: 'John',
-        age: 30
+        age: 30,
+        userName: 'john.doe',
+        userPassword: 'password'
       });
       jest.spyOn(usersService, 'getUserById').mockImplementation(() => resultExpected);
       expect(await usersController.getUserById(0)).toBe(await resultExpected);
@@ -83,7 +89,9 @@ describe('UsersController', () => {
         id: 0,
         lastName: 'Doe',
         firstName: 'John',
-        age: 30
+        age: 30,
+        userName: 'john.doe',
+        userPassword: 'password'
       });
       jest.spyOn(usersService, 'updateUser').mockImplementation(() => resultExpected);
       expect(await usersController.updateUser(0, {lastName: 'Doe', firstName: 'John', age: 30})).toBe(await resultExpected);

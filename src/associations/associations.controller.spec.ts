@@ -42,7 +42,11 @@ describe('AssociationsController', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve({
         id: 0,
-        idUsers: [1, 2, 3],
+        Users: [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password' },
+          { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password' },
+          { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password' }
+        ],
         name: 'Association test'
       });
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => resultExpected);
@@ -54,7 +58,11 @@ describe('AssociationsController', () => {
     it('should return an array of associations', async () => {
       const resultExpected = Promise.all([{
         id: 0,
-        idUsers: [1, 2, 3],
+        Users: [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password' },
+          { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password' },
+          { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password' }
+        ],
         name: 'Association test'
       }]);
       jest.spyOn(associationService, 'getAssociations').mockImplementation(() => resultExpected);
@@ -66,7 +74,11 @@ describe('AssociationsController', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve({
         id: 0,
-        idUsers: [1, 2, 3],
+        Users: [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password' },
+          { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password' },
+          { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password' }
+        ],
         name: 'Association test'
       });
       jest.spyOn(associationService, 'getAssociationById').mockImplementation(() => resultExpected);
@@ -76,12 +88,11 @@ describe('AssociationsController', () => {
 
   describe('getMembersOfAssociation', () => {
     it('should return an array of associations', async () => {
-      const resultExpected = Promise.all([{
-        id: 0,
-        lastName: 'Doe',
-        firstName: 'John',
-        age: 30
-      }]);
+      const resultExpected = Promise.all([
+        { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', userPassword: 'password'},
+        { id: 1, lastName: 'Doe', firstName: 'Jane', age: 28, userName: 'jane.doe', userPassword: 'password'},
+        { id: 2, lastName: 'Smith', firstName: 'Bob', age: 35, userName: 'bob.smith', userPassword: 'password'}
+      ]);
       jest.spyOn(associationService, 'getMembersOfAssociation').mockImplementation(() => resultExpected);
       expect(await associationController.getMembersOfAssociation(0)).toBe(await resultExpected);
     });
@@ -91,7 +102,11 @@ describe('AssociationsController', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve({
         id: 0,
-        idUsers: [1, 2, 3],
+        Users: [
+          { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password' },
+          { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password' },
+          { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password' }
+        ],
         name: 'Association test'
       });
       jest.spyOn(associationService, 'updateAssociation').mockImplementation(() => resultExpected);
