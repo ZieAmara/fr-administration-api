@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './interfaces/user.interface';
+import { User } from './user-table-db/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -24,7 +24,7 @@ export class UsersController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })
     public async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-        return await this.usersService.createUser(createUserDto.lastName, createUserDto.firstName, createUserDto.age);    
+        return await this.usersService.createUser(createUserDto);    
     }
 
 
@@ -52,8 +52,8 @@ export class UsersController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'User not found.' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async getUserById(@Param('id') id: string): Promise<User> {
-        const user = await this.usersService.getUserById(parseInt(id));
+    public async getUserById(@Param('id', ParseIntPipe) id: number): Promise<User> {
+        const user = await this.usersService.getUserById(id);
         if (!user) {
             throw new HttpException(`Could not find a user with the id ${id}`, HttpStatus.NOT_FOUND)
         }

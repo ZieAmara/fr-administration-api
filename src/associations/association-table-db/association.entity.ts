@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { User } from "src/users/user-table-db/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Association {
@@ -8,6 +8,8 @@ export class Association {
     @PrimaryGeneratedColumn()
     id: number;
 
+    @ManyToOne(() => User, (user) => user.id)
+    @JoinTable()
     @Column({
         type: 'json',
         nullable: false
@@ -20,8 +22,5 @@ export class Association {
         nullable: false
     })
     name: string;
-
-    @JoinTable()
-    users: Promise<User[]>;
-
+    
 }

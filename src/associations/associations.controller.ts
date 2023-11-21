@@ -1,9 +1,9 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { AssociationsService } from './associations.service';
 import { CreateAssociationDto } from './dto/create-association.dto';
-import { Association } from './interfaces/association.interface';
+import { Association } from 'src/associations/association-table-db/association.entity';
 import { UpdateAssociationDto } from './dto/update-association.dto';
-import { User } from 'src/users/interfaces/user.interface';
+import { User } from 'src/users/user-table-db/user.entity';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Associations Endpoints')
@@ -25,7 +25,7 @@ export class AssociationsController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })
     public async createAssociation(@Body() createAssociationDto: CreateAssociationDto): Promise<Association> {
-        return await this.associationService.create(createAssociationDto);
+        return await this.associationService.createAssociation(createAssociationDto);
     }
 
 
@@ -72,12 +72,12 @@ export class AssociationsController {
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 404, description: 'Association not found.' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async getMembers(@Param('id', ParseIntPipe) id: number): Promise<User[]> {
+    public async getMembersOfAssociation(@Param('id', ParseIntPipe) id: number): Promise<User[]> {
         const association = await this.associationService.getAssociationById(id);
         if (!association) {
             throw new HttpException(`Could not find a association with the id ${id}`, HttpStatus.NOT_FOUND)
         }
-        return await this.associationService.getMembers(id);
+        return await this.associationService.getMembersOfAssociation(id);
     }
 
 

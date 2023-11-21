@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { Association } from 'src/associations/interfaces/association.interface';
-import { CreateAssociationDto } from 'src/associations/dto/create-association.dto';
-import { UpdateAssociationDto } from 'src/associations/dto/update-association.dto';
-import { User } from 'src/users/interfaces/user.interface';
-import { UsersService } from 'src/users/users.service';
+import { Association } from '../associations/association-table-db/association.entity';
+import { CreateAssociationDto } from '../associations/dto/create-association.dto';
+import { UpdateAssociationDto } from '../associations/dto/update-association.dto';
+import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
+import { User } from '../users/user-table-db/user.entity';
 
 @Injectable()
 export class AssociationsService {
@@ -15,7 +15,7 @@ export class AssociationsService {
         private readonly usersService: UsersService
     ) {}
 
-    public async create(createAssociationDto: CreateAssociationDto): Promise<Association> {
+    public async createAssociation(createAssociationDto: CreateAssociationDto): Promise<Association> {
         const associationCreated = this.associationsRepository.create({
             name: createAssociationDto.name
         });
@@ -38,7 +38,7 @@ export class AssociationsService {
         return await this.associationsRepository.findOne({where: {id: associationId}});
     }
 
-    public async getMembers(associationId: number): Promise<User[]> {
+    public async getMembersOfAssociation(associationId: number): Promise<User[]> {
         const association = await this.associationsRepository.findOne({where: {id: associationId}});
         const members = await Promise.all(
             association.idUsers.map(async (idUser) => {
