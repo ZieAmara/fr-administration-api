@@ -9,7 +9,7 @@ async function bootstrap() {
 
   const configSwagger = new DocumentBuilder()
     .setTitle('Manage Associations')
-.setDescription('This API allows you to manage all associations of our database.')
+    .setDescription('This API allows you to manage all associations of our database.')
     .setVersion('1.0')
     .addTag('Manage associations Api')
     .build();
