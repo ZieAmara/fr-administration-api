@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class SingInDto {
+export class LogInDto {
 
     @ApiProperty({
         type: String,

@@ -67,3 +67,8 @@ get http://localhost:3000/user/5 404
 # curl -X DELETE http://localhost:3000/user/delete/1
 # curl http://localhost:3000/user/1
 # curl http://localhost:3000/user/all
+
+### Test of the login 
+# curl -X POST -d '{"lastName": "Traore", "firstName": "Zie", "age": 26, "userName": "zie.traore", "userPassword": "123456"}' http://localhost:3000/user/create
+# curl -X POST http://localhost:3000/auth/login -d '{"username": "zie.traore", "password": "123456"}' -H "Content-Type: application/json"
+# curl http://localhost:3000/user/all -H "Content-Type: application/json" -H "Authorization: Bearer token"
