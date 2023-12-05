@@ -1,3 +1,4 @@
+import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -15,6 +16,21 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, configSwagger);
   SwaggerModule.setup('api', app, document);
+
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'trusted-scripts.com'],
+        styleSrc: ['style.com'],
+      },
+    },
+    dnsPrefetchControl: false, // Desable DNS prefetching for performance
+    frameguard: { action: 'deny' }, // Stop clickjacking attacks by not allowing iframes to run in the browser window
+    hsts: { maxAge: 31536000, includeSubDomains: true }, // Strict-Transport-Security header for modern browsers (Prevent MIME-sniffing)
+    noSniff: true, // X-Content-Type-Options: nosniff (Prevent MIME-sniffing)
+    referrerPolicy: { policy: 'no-referrer' }, // Referrer-Policy: no-referrer 
+  }));
 
   await app.listen(3000);
 }

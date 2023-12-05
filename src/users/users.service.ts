@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { User } from './user-table-db/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import * as bcrypt from 'bcrypt'
 
 @Injectable()
 export class UsersService {
@@ -15,10 +16,17 @@ export class UsersService {
         const user = this.userRepository.create({
             lastName: createUserDto.lastName, 
             firstName: createUserDto.firstName, 
-            age: createUserDto.age>0? createUserDto.age : 0
+            age: createUserDto.age,
+            userName: createUserDto.userName,
+            userPassword: await this.hashPassword(createUserDto.userPassword)
         });
         await this.userRepository.save(user);
         return user;
+    }
+
+    private async hashPassword(password: string): Promise<string> {
+        const saltOrRounds = 10;
+        return await bcrypt.hash(password, saltOrRounds);
     }
 
     public async getAllUsers(): Promise<User[]> {
@@ -27,6 +35,10 @@ export class UsersService {
 
     public async getUserById(userId: number): Promise<User> {
         return await this.userRepository.findOne({where: {id: userId}});
+    }
+
+    public async getUserByUserName(userName: string): Promise<User> {
+        return await this.userRepository.findOne({where: {userName: userName}});
     }
 
     public async updateUser(userId: number, updateUserDto): Promise<User> {
@@ -40,6 +52,12 @@ export class UsersService {
             }
             if (updateUserDto.age) {
                 (await user).age = updateUserDto.age > 0 ? updateUserDto.age : 0;
+            }
+            if (updateUserDto.userName) {
+                (await user).userName = updateUserDto.userName;
+            }
+            if (updateUserDto.userPassword) {
+                (await user).userPassword = updateUserDto.userPassword;
             }
 
             await this.userRepository.save(await user);

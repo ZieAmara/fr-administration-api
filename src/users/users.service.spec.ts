@@ -1,18 +1,32 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
 import { UsersService } from './users.service';
 import { Repository } from 'typeorm';
+import { User } from './user-table-db/user.entity';
+import { CreateUserDto } from './dto/create-user.dto';
 
+
+const usersSetExpected : User[] = [
+  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456' },
+  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', userPassword: '000000' },
+  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', userPassword: 'Lee123' },
+  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', userPassword: 'Sow1&3' },
+];
 
 export type MockType<T> = {
   [P in keyof T]?: jest.Mock<{}>;
 }; 
 
-export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(() => ({
-  findOne: jest.fn(entity => entity),
+export const repositoryMockFactory: () => MockType<Repository<User>> = jest.fn(() => ({
+  create: jest.fn().mockImplementation(dto => ({ ...dto })),
+  save: jest.fn().mockImplementation(user => ({ id: 0, ...user })),
+  find: jest.fn().mockResolvedValue([usersSetExpected]),
+  findOne: jest.fn().mockImplementation(({where:{id: userId}}) => ({id: userId, ...usersSetExpected[0]})),
 }));
 
 
 describe('UsersService', () => {
+  let usersRepositoryMock: MockType<Repository<User>>;
   let usersService: UsersService;
 
   beforeEach(async () => {
@@ -27,72 +41,77 @@ describe('UsersService', () => {
     }).compile();
 
     usersService = module.get<UsersService>(UsersService);
+    usersRepositoryMock = module.get('USER_REPOSITORY');
+
   });
 
-  
   it('should be defined', () => {
     expect(usersService).toBeDefined();
   });
 
   describe('createUser', () => {
-    it('should return an user', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        lastName: 'Doe',
-        firstName: 'John',
-        age: 30
-      });
-      jest.spyOn(usersService, 'createUser').mockImplementation(() => resultExpected);
-      expect(await usersService.createUser({lastName: 'Doe', firstName: 'John', age: 30})).toBe(await resultExpected);
+    
+    it('should create an user', async () => {
+      const createUserDto: CreateUserDto = {
+        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456',
+      };
+      const {id, userPassword, ...resultExpected} = usersSetExpected[0];
+      await expect(usersService.createUser(createUserDto).then(
+        user => {
+          createUserDto.userPassword = user.userPassword;
+          const {id, userPassword, ...result} = user;
+          return result;
+        }
+      )).resolves.toEqual(resultExpected);
+      expect(usersRepositoryMock.create).toHaveBeenCalledWith(createUserDto);
+      expect(usersRepositoryMock.save).toHaveBeenCalledWith(createUserDto);
     });
+
+    it ('The user created have a hashed password', async () => {
+      const createUserDto: CreateUserDto = {
+        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456',
+      };
+      await usersService.createUser(createUserDto).then(
+        user => {
+          expect(bcrypt.compareSync('123456', user.userPassword)).toBe(true);
+          console.log('When the creation of an user, the user password has been hashed and saved in db. \nFor this user, This hash is : ',user.userPassword);
+          expect(bcrypt.compareSync('000000', user.userPassword)).toBe(false);
+        }
+      );
+    })
+    
   });
 
   describe('getAllUsers', () => {
     it('should return an array of users', async () => {
-      const resultExpected = Promise.all([
-        {
-          id: 0,
-          lastName: 'Doe',
-          firstName: 'John',
-          age: 30
-        }
-      ]);
-      jest.spyOn(usersService, 'getAllUsers').mockImplementation(() => resultExpected);
-      expect(await usersService.getAllUsers()).toBe(await resultExpected);
+      await expect(usersService.getAllUsers()).resolves.toEqual([usersSetExpected]);
+      expect(usersRepositoryMock.find).toHaveBeenCalled();
     });
   });
 
   describe('getUserById', () => {
+    const resultExpected = Promise.resolve(usersSetExpected[0]);
     it('should return an user', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        lastName: 'Doe',
-        firstName: 'John',
-        age: 30
-      });
-      jest.spyOn(usersService, 'getUserById').mockImplementation(() => resultExpected);
-      expect(await usersService.getUserById(0)).toBe(await resultExpected);
+      await expect(usersService.getUserById(0)).resolves.toEqual(await resultExpected);
+      expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({where: {id: 0}});
     });
   });
 
   describe('updateUser', () => {
+    const resultExpected = Promise.resolve(usersSetExpected[0]);
+
     it('should return an user', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        lastName: 'Doe',
-        firstName: 'John',
-        age: 30
-      });
       jest.spyOn(usersService, 'updateUser').mockImplementation(() => resultExpected);
       expect(await usersService.updateUser(0, {lastName: 'Doe', firstName: 'John', age: 30})).toBe(await resultExpected);
     });
   });
 
   describe('deleteUser', () => {
+    const resultExpected = Promise.resolve(true);
+
     it('should return true', async () => {
-      const resultExpected = Promise.resolve(true);
       jest.spyOn(usersService, 'deleteUser').mockImplementation(() => resultExpected);
-      expect(await usersService.deleteUser(0)).toBe(await resultExpected);
+      expect(await usersService.deleteUser(3)).toBe(await resultExpected);
     });
   });
 

@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user-table-db/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { UserValidedDto } from './dto/valided-user.dto';
+import { QueryFailedError } from 'typeorm';
 
 @ApiTags('Users Endpoints')
 @Controller('user')
@@ -19,12 +22,19 @@ export class UsersController {
         description: 'This endpoint allows you to create an user.',
     })
     @Post('create')
-    @ApiResponse({ status: 201, description: 'The user has been successfully created.' })
-    @ApiResponse({ status: 400, description: 'The user has not been created.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'The user has been successfully created.' })
+    @ApiResponse({ status: HttpStatus.CONFLICT, description: 'The user has not created. Because of Duplicate entry userName'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The user has not been created. because some user fields are missing' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async createUser(@Body() createUserDto: CreateUserDto): Promise<User> {
-        return await this.usersService.createUser(createUserDto);    
+    public async createUser(@Body(new ValidationPipe()) createUserDto: CreateUserDto): Promise<UserValidedDto> {
+        try {
+            return await this.usersService.createUser(createUserDto);
+        } catch (error) {
+            if (error instanceof QueryFailedError) {
+                throw new HttpException(error.message, HttpStatus.CONFLICT);
+            }
+            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 
@@ -32,8 +42,9 @@ export class UsersController {
         name: 'Get All Users',
         description: 'This endpoint allows you to get all users.',
     })
+    @UseGuards(JwtAuthGuard)
     @Get('all')
-    @ApiResponse({ status: 200, description: 'The users have been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.OK, description: 'The users have been successfully retrieved.'})
     @ApiResponse({ status: 400, description: 'The users have not been retrieved.' })
     @ApiResponse({ status: 403, description: 'Forbidden.' })
     @ApiResponse({ status: 500, description: 'Internal server error.' })

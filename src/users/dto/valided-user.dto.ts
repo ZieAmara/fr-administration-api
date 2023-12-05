@@ -1,15 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString, IsInt, Length , IsPositive} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger"
 
-export class CreateUserDto {
+export class UserValidedDto {
 
     @ApiProperty({
         type: String,
         description: "The last name of the user",
         example: "Doe",
     })
-    @IsNotEmpty()
-    @IsString()
     lastName: string
 
     @ApiProperty({
@@ -17,8 +14,6 @@ export class CreateUserDto {
         description: "The first name of the user",
         example: "John",
     })
-    @IsNotEmpty()
-    @IsString()
     firstName: string
 
     @ApiProperty({
@@ -26,9 +21,6 @@ export class CreateUserDto {
         description: "The age of the user",
         example: 30,
     })
-    @IsNotEmpty()
-    @IsInt()
-    @IsPositive()
     age: number
 
     @ApiProperty({
@@ -37,18 +29,6 @@ export class CreateUserDto {
         example: "johndoe",
         uniqueItems: true,
     })
-    @IsNotEmpty()
-    @Length(4, 20)
-    @IsString()
     userName: string
 
-    @ApiProperty({
-        type: String,
-        description: "The password of the user",
-        example: "password",
-    })
-    @IsNotEmpty()
-    @IsString()
-    @Length(4, 20)
-    userPassword: string
 }
