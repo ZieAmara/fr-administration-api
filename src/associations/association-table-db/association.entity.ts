@@ -1,5 +1,6 @@
-import { User } from "src/users/user-table-db/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Role } from "../../role/role-table-db/role.entity";
+import { User } from "../../users/user-table-db/user.entity";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Association {
@@ -7,20 +8,19 @@ export class Association {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToMany(() => User)
-    @JoinTable()
-    @Column({
-        type: 'json',
-        nullable: false
-    })
-    Users: User[];
-
     @Column({
         type: 'varchar',
         length: 255,
         nullable: false
     })
     name: string;
+
+    @ManyToMany(() => User)
+    @JoinTable()
+    Users: User[];
+
+    @OneToMany(() => Role, role => role.association)
+    roles?: Role[];
     
 }
 
