@@ -8,16 +8,23 @@ export class Role {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Association, association => association.roles)
-    association: Association;
-
-    @ManyToOne(() => User, user => user.roles)
-    user: User;
-
     @Column({
         type: 'varchar',
         length: 255,
         nullable: false
     })
     name: string;
+
+    @ManyToOne(() => Association, association => association.roles, {
+        eager: true,
+        nullable: false
+    })
+    association: Association;
+
+    @ManyToOne(() => User, user => user.roles, {
+        eager: true,
+        nullable: false
+    })
+    user: User;
+
 }
