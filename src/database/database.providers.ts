@@ -11,18 +11,18 @@ export const databaseProviders = [
                 username: "zie",
                 password: "12345678",
                 database: "associations_admin_db",
-                entities: [__dirname + "/../**/*.entity{.ts,.js}"],
+                entities: ["dist/**/*.entity{.ts,.js}"],
                 synchronize: true,
                 //logging: true
             });
-            return dataSource.initialize()
-                .then(() => {
-                    console.log("Data Source has been initialized!");
-                })
-                .catch((err) => {
-                    console.error("Error during Data Source initialization", err);
-                })
-            ;
+            try {
+                await dataSource.initialize();
+                console.log("Data Source has been initialized!");
+            } catch (error) {
+                console.error("Error during Data Source initialization", error);
+            }
+
+            return dataSource;
         },
     },
 ];

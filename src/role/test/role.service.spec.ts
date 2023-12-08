@@ -4,8 +4,8 @@ import { UsersModule } from '../../users/users.module';
 import { AssociationsModule } from '../../associations/associations.module';
 import { Repository } from 'typeorm';
 import { Role } from '../role-table-db/role.entity';
-import { UsersService } from 'src/users/users.service';
-import { AssociationsService } from 'src/associations/associations.service';
+import { UsersService } from '../../users/users.service';
+import { AssociationsService } from '../../associations/associations.service';
 
 
 export type MockType<T> = {
