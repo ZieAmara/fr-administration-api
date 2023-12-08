@@ -1,16 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from './users.service';
+import { UsersService } from '../users.service';
 import { Repository } from 'typeorm';
-import { User } from './user-table-db/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { User } from '../user-table-db/user.entity';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 
 const usersSetExpected : User[] = [
-  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456' },
-  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', userPassword: '000000' },
-  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', userPassword: 'Lee123' },
-  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', userPassword: 'Sow1&3' },
+  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456', roles: [] },
+  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', userPassword: '000000', roles: [] },
+  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', userPassword: 'Lee123', roles: [] },
+  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', userPassword: 'Sow1&3', roles: [] },
 ];
 
 export type MockType<T> = {
@@ -55,7 +55,7 @@ describe('UsersService', () => {
       const createUserDto: CreateUserDto = {
         lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456',
       };
-      const {id, userPassword, ...resultExpected} = usersSetExpected[0];
+      const {id, userPassword, roles, ...resultExpected} = usersSetExpected[0];
       await expect(usersService.createUser(createUserDto).then(
         user => {
           createUserDto.userPassword = user.userPassword;

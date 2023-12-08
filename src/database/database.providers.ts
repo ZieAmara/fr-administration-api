@@ -13,8 +13,16 @@ export const databaseProviders = [
                 database: "associations_admin_db",
                 entities: ["dist/**/*.entity{.ts,.js}"],
                 synchronize: true,
+                //logging: true
             });
-            return dataSource.initialize();
+            try {
+                await dataSource.initialize();
+                console.log("Data Source has been initialized!");
+            } catch (error) {
+                console.error("Error during Data Source initialization", error);
+            }
+
+            return dataSource;
         },
     },
 ];
