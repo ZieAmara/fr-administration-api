@@ -16,14 +16,23 @@ export class Association {
     name: string;
 
     @ManyToMany(() => User)
-    @JoinTable()
+    @JoinTable({
+        name: 'association_users',
+        joinColumn: {
+            name: 'associationId',
+            referencedColumnName: 'id'
+        },
+        inverseJoinColumn: {
+            name: 'userId',
+            referencedColumnName: 'id'
+        }
+    })
     Users: User[];
 
-    @OneToMany(() => Role, role => role.association)
-    roles?: Role[];
+    @OneToMany(() => Role, role => role.association, {
+        cascade: true,
+        onDelete: 'CASCADE'
+    })
+    roles: Role[];
     
 }
-
-/* SQL Command to create this table
-CREATE TABLE association (id INT AUTO_INCREMENT PRIMARY KEY, name VARCHAR(255) NOT NULL, Users JSON NOT NULL);
-*/

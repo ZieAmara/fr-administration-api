@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AssociationsService } from './associations.service';
+import { AssociationsService } from '../associations.service';
 import { Repository } from 'typeorm';
-import { UsersModule } from '../users/users.module';
+import { UsersModule } from '../../users/users.module';
 
 
 export type MockType<T> = {

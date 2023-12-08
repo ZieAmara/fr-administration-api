@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import * as bcrypt from 'bcrypt';
-import { UsersService } from './users.service';
+import { UsersService } from '../users.service';
 import { Repository } from 'typeorm';
-import { User } from './user-table-db/user.entity';
-import { CreateUserDto } from './dto/create-user.dto';
+import { User } from '../user-table-db/user.entity';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 
 const usersSetExpected : User[] = [

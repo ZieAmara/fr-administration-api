@@ -11,9 +11,9 @@ export const databaseProviders = [
                 username: "zie",
                 password: "12345678",
                 database: "associations_admin_db",
-                entities: ["dist/**/*.entity{.ts,.js}"],
+                entities: [__dirname + "/../**/*.entity{.ts,.js}"],
                 synchronize: true,
-                logging: true
+                //logging: true
             });
             return dataSource.initialize()
                 .then(() => {

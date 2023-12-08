@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
+import { UsersController } from '../users.controller';
+import { UsersService } from '../users.service';
 import { Repository } from 'typeorm';
-import { User } from './user-table-db/user.entity';
+import { User } from '../user-table-db/user.entity';
 
 
 export type MockType<T> = {

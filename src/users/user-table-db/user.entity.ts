@@ -42,11 +42,10 @@ export class User {
     })
     userPassword: string;
 
-    @OneToMany(() => Role, role => role.user)
-    roles?: Role[];
+    @OneToMany(() => Role, role => role.user, {
+        cascade: true,
+        onDelete: 'CASCADE'
+    })
+    roles: Role[];
 
 }
-
-/* SQL Command to create this table
-CREATE TABLE user (id INT AUTO_INCREMENT PRIMARY KEY, lastName VARCHAR(100) NOT NULL, firstName VARCHAR(100) NOT NULL, age INT NOT NULL, userName VARCHAR(100) NOT NULL UNIQUE, userPassword VARCHAR(100) NOT NULL);
-*/
