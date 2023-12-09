@@ -47,6 +47,7 @@ describe('AssociationsService', () => {
         ],
         name: 'Association test',
         roles: [],
+        minutes: []
       });
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => resultExpected);
       expect(await associationService.createAssociation({ idUsers: [1, 2, 3], name: 'Association test' })).toBe(await resultExpected);
@@ -65,6 +66,7 @@ describe('AssociationsService', () => {
           ],
           name: 'Association test',
           roles: [],
+          minutes: []
         },
       ]);
       jest.spyOn(associationService, 'getAssociations').mockImplementation(() => resultExpected);
@@ -83,6 +85,7 @@ describe('AssociationsService', () => {
         ],
         name: 'Association test',
         roles: [],
+        minutes: []
       });
       jest.spyOn(associationService, 'getAssociationById').mockImplementation(() => resultExpected);
       expect(await associationService.getAssociationById(0)).toBe(await resultExpected);
@@ -110,6 +113,7 @@ describe('AssociationsService', () => {
         ],
         name: 'Association test',
         roles: [],
+        minutes: []
       });
       jest.spyOn(associationService, 'updateAssociation').mockImplementation(() => resultExpected);
       expect(await associationService.updateAssociation(0, { idUsers: [1, 2, 3], name: 'Association test' })).toBe(await resultExpected);

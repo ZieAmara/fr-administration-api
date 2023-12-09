@@ -42,7 +42,7 @@ export class UsersController {
         name: 'Get All Users',
         description: 'This endpoint allows you to get all users.',
     })
-    @UseGuards(JwtAuthGuard)
+    // @UseGuards(JwtAuthGuard)
     @Get('all')
     @ApiResponse({ status: HttpStatus.OK, description: 'The users have been successfully retrieved.'})
     @ApiResponse({ status: 400, description: 'The users have not been retrieved.' })
