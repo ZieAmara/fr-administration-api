@@ -17,16 +17,20 @@ export class RoleService {
     ) {}
 
     public async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
-        const roleCreated = this.roleRepository.create({
-            name: createRoleDto.name,
-        });
-
         const user = await this.usersService.getUserById(createRoleDto.idUser);
         const association = await this.associationsService.getAssociationById(createRoleDto.idAssociation);
-        roleCreated.user = user;
-        roleCreated.association = association;
+        
+        if (!user || !association) {
+            throw new HttpException( 'User or association not found', HttpStatus.NOT_FOUND);
+        }
 
+        const roleCreated = this.roleRepository.create({
+            name: createRoleDto.name,
+            user: user,
+            association: association
+        });
         await this.roleRepository.save(roleCreated);
+
         return roleCreated;
     }
 
@@ -41,15 +45,15 @@ export class RoleService {
     }
 
     public async updateRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number, newRole: UpdateRoleDto): Promise<Role> {
-        const roleUpdated = this.roleRepository.findOne({
+        const roleToUpdated = this.roleRepository.findOne({
             where: {user: {id: idUser}, association: {id: idAssociation}}
         });
-        if (!roleUpdated){
+        if (!roleToUpdated){
             throw new HttpException( `Role with idUser ${idUser} and idAssociation ${idAssociation} not found`, HttpStatus.NOT_FOUND);
         }
-        if (newRole.name !== (await roleUpdated).name) {
-            (await roleUpdated).name = newRole.name
-            await this.roleRepository.save(await roleUpdated);
+        if (newRole.name !== (await roleToUpdated).name) {
+            (await roleToUpdated).name = newRole.name
+            await this.roleRepository.save(await roleToUpdated);
         }
         return this.roleRepository.findOne({
             where: {user: {id: idUser}, association: {id: idAssociation}}

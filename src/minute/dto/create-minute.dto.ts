@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
+import { IsDateString } from "class-validator";
 
 export class CreateMinuteDto {
 
@@ -17,10 +18,11 @@ export class CreateMinuteDto {
     public idVoters: number[];
 
     @ApiProperty({
-        description: 'The date when the general assembly occured',
-        example: "12/12/2021",
+        description: 'The date (IsISO8601) when the general assembly occured',
+        example: "AAAA-MM-JJTHH:MM:SS,ss-/+FF:ff",
         type: String,
     })
+    @IsDateString()
     public date: string;
 
     @ApiProperty({
