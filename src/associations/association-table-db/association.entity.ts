@@ -28,7 +28,7 @@ export class Association {
             referencedColumnName: 'id'
         }
     })
-    Users: User[];
+    users: User[];
 
     @OneToMany(() => Role, role => role.association, {
         cascade: true,

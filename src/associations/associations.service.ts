@@ -25,7 +25,7 @@ export class AssociationsService {
                 return user? user : null;
             })
         )
-        associationCreated.Users = users.filter(user => user !== null);
+        associationCreated.users = users.filter(user => user !== null);
         await this.associationsRepository.save(associationCreated);
         return associationCreated;
     }
@@ -40,7 +40,7 @@ export class AssociationsService {
 
     public async getMembersOfAssociation(associationId: number): Promise<User[]> {
         const association = await this.associationsRepository.findOne({where: {id: associationId}});
-        return association.Users;
+        return association.users;
     }
 
     public async updateAssociation(associationId: number, association: UpdateAssociationDto): Promise<Association> {
@@ -53,7 +53,7 @@ export class AssociationsService {
                         return user? user : null;
                     })
                 );
-                (await associationUpdated).Users = users.filter(user => user !== null);
+                (await associationUpdated).users = users.filter(user => user !== null);
             }
             if (association.name) {
                 (await associationUpdated).name = association.name
