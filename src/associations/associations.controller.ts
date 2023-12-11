@@ -17,6 +17,13 @@ export class AssociationsController {
         private readonly associationService: AssociationsService,
     ) {}
 
+
+    /**
+     * DTO Mapping 
+     * from Association to AssociationDto
+     * @param association : Association
+     * @returns newAssociation : AssociationDto
+     */
     private async associationToAssociationDto(association: Association): Promise<AssociationDto> {
         const newAssociation = new AssociationDto();
 
@@ -28,8 +35,22 @@ export class AssociationsController {
 
     }
 
+
+    /**
+     * DTO Mapping 
+     * from User to Member
+     * @param idAssociatoion : number
+     * @param users : User[]
+     * @returns Promise<Member[]>
+     */
     private async usersToMembersDto(idAssociatoion: number, users: User[]): Promise<Member[]> {
-        return users.map(user => {
+        const members: Member[] = [];
+
+        if (!users || users.length === 0) {
+            return members;
+        }
+
+        users.forEach(user => {
             const member = new Member();
             member.id = user.id;
             member.firstName = user.firstName;
@@ -40,19 +61,22 @@ export class AssociationsController {
                 .map(role => (role.association.id === idAssociatoion) ? role.name : null)
                 .filter(role => role !== null)
                 .join(', ');
-            return member;
+            members.push(member);
         });
+
+        return members
     }
+
 
     @ApiHeader({
         name: 'Create an association',
         description: 'This endpoint allows you to create an association.',
     })
     @Post('create')
-    @ApiResponse({ status: 201, description: 'The association has been successfully created.' })
-    @ApiResponse({ status: 400, description: 'The association has not been created.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
+    @ApiResponse({ status: HttpStatus.CREATED, description: 'The association has been successfully created.' })
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The association has not been created.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
     public async createAssociation(@Body() createAssociationDto: CreateAssociationDto): Promise<AssociationDto> {
         let newAssociation = new AssociationDto();
         try {
@@ -76,14 +100,14 @@ export class AssociationsController {
         description: 'This endpoint allows you to get all associations.',
     })
     @Get('all')
-    @ApiResponse({ status: 200, description: 'The associations have been successfully retrieved.'})
-    @ApiResponse({ status: 400, description: 'The associations have not been retrieved.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
+    @ApiResponse({ status: HttpStatus.OK, description: 'The associations have been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The associations have not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
     public async getAllAssociations(): Promise<AssociationDto[]> {
         try {
+            const allAssociationsDto: AssociationDto[] = [];
             const associations = await this.associationService.getAssociations();
-            const allAssociationsDto = [];
             for (const association of associations) {
                 allAssociationsDto.push(await this.associationToAssociationDto(association));
             }
@@ -99,16 +123,16 @@ export class AssociationsController {
         name: 'Get One association',
         description: 'This endpoint allows you to get one association.',
     })
-    @Get(':id')
-    @ApiResponse({ status: 200, description: 'The association has been successfully retrieved.'})
-    @ApiResponse({ status: 400, description: 'The association has not been retrieved.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 404, description: 'Association not found.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async getAssociationById(@Param('id', ParseIntPipe) id: number): Promise<AssociationDto> {
-        const association = await this.associationService.getAssociationById(id);
+    @Get(':idAssociation')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The association has been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The association has not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async getAssociationById(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<AssociationDto> {
+        const association = await this.associationService.getAssociationById(idAssociation);
         if (!association) {
-            throw new HttpException(`Could not find a association with the id ${id}`, HttpStatus.NOT_FOUND)
+            throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         return await this.associationToAssociationDto(association);
     }
@@ -118,20 +142,20 @@ export class AssociationsController {
         name: 'Get all Members of an Association',
         description: 'This endpoint allows you to get all members of an association.',
     })
-    @Get(':id/members')
-    @ApiResponse({ status: 200, description: 'The members have been successfully retrieved.'})
-    @ApiResponse({ status: 400, description: 'The members have not been retrieved.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 404, description: 'Association not found.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async getMembersOfAssociation(@Param('id', ParseIntPipe) id: number): Promise<Member[]> {
-        const association = await this.associationService.getAssociationById(id);
+    @Get(':idAssociation/members')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The members have been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The members have not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async getMembersOfAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<Member[]> {
+        const association = await this.associationService.getAssociationById(idAssociation);
         if (!association) {
-            throw new HttpException(`Could not find a association with the id ${id}`, HttpStatus.NOT_FOUND)
+            throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         try {
-            const users = await this.associationService.getMembersOfAssociation(id);
-            const members = await this.usersToMembersDto(id, users);
+            const users = await this.associationService.getMembersOfAssociation(idAssociation);
+            const members = await this.usersToMembersDto(idAssociation, users);
             return members
         } catch (error) {
             console.log(error);
@@ -144,16 +168,16 @@ export class AssociationsController {
         name: 'Update an Association',
         description: 'This endpoint allows you to update an association.',
     })
-    @Put('update/:id')
-    @ApiResponse({ status: 200, description: 'The association has been successfully updated.'})
-    @ApiResponse({ status: 400, description: 'The association has not been updated.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 404, description: 'Association not found.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async updateAssociation(@Param('id', ParseIntPipe) id: number, @Body() updateAssociationDto: UpdateAssociationDto): Promise<AssociationDto> {
-        const associationUpdated = await this.associationService.updateAssociation(id, updateAssociationDto);
+    @Put('update/:idAssociation')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The association has been successfully updated.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The association has not been updated.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async updateAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number, @Body() updateAssociationDto: UpdateAssociationDto): Promise<AssociationDto> {
+        const associationUpdated = await this.associationService.updateAssociation(idAssociation, updateAssociationDto);
         if (!associationUpdated) {
-            throw new HttpException(`Could not find a association with the id ${id}`, HttpStatus.NOT_FOUND)
+            throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         try {
             return await this.associationToAssociationDto(associationUpdated);
@@ -168,16 +192,16 @@ export class AssociationsController {
         name: 'Delete an Association',
         description: 'This endpoint allows you to delete an association.',
     })
-    @Delete('delete/:id')
-    @ApiResponse({ status: 200, description: 'The association has been successfully deleted.'})
-    @ApiResponse({ status: 400, description: 'The association has not been deleted.' })
-    @ApiResponse({ status: 403, description: 'Forbidden.' })
-    @ApiResponse({ status: 404, description: 'Association not found.' })
-    @ApiResponse({ status: 500, description: 'Internal server error.' })
-    public async deleteAssociation(@Param('id', ParseIntPipe) id: number): Promise<boolean> {
-        const associationDelated = await this.associationService.deleteAssociation(id);
+    @Delete('delete/:idAssociation')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The association has been successfully deleted.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The association has not been deleted.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async deleteAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<boolean> {
+        const associationDelated = await this.associationService.deleteAssociation(idAssociation);
         if (!associationDelated) {
-            throw new HttpException(`Could not find a association with the id ${id}`, HttpStatus.NOT_FOUND)
+            throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         return true;
     }
