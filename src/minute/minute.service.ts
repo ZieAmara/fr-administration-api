@@ -39,17 +39,21 @@ export class MinuteService {
         return;
     }
 
+
     public async getAllMinutes(): Promise<Minute[]> {
         return await this.minuteRepository.find();
     }
+
 
     public async getMinuteById(idMinute: number): Promise<Minute> {
         return await this.minuteRepository.findOne({where: {id: idMinute}});
     }
 
+
     public async getMinuteByIdAssociation(idAssocation: number): Promise<Minute[]> {
         return await this.minuteRepository.find({where: {association: {id: idAssocation}}});
     }
+
 
     public async updateMinute(idMinute: number, updateMinuteDto: UpdateMinuteDto): Promise<Minute> {
         const minuteToUpdate = await this.getMinuteById(idMinute);
@@ -79,8 +83,8 @@ export class MinuteService {
         await this.minuteRepository.save(await minuteToUpdate);
 
         return this.minuteRepository.findOne({where: {id: idMinute}});
-
     }
+
 
     public async deleteMinuteById(idMinute: number): Promise<boolean> {
         const minute = this.minuteRepository.findOne({where: {id: idMinute}});

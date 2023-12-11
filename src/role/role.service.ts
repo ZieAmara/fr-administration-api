@@ -16,6 +16,7 @@ export class RoleService {
         private readonly associationsService: AssociationsService,
     ) {}
 
+
     public async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
         const user = await this.usersService.getUserById(createRoleDto.idUser);
         const association = await this.associationsService.getAssociationById(createRoleDto.idAssociation);
@@ -34,15 +35,25 @@ export class RoleService {
         return roleCreated;
     }
 
+
     public async getAllRoles(): Promise<Role[]> {
         return await this.roleRepository.find();
     }
+
+
+    public async getRolesByName(name: string): Promise<Role[]> {
+        return await this.roleRepository.find({
+            where: {name: name}
+        });
+    }
+    
 
     public async getUserRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number): Promise<Role> {
         return await this.roleRepository.findOne({
             where: {user: {id: idUser}, association: {id: idAssociation}}
         });
     }
+
 
     public async updateRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number, newRole: UpdateRoleDto): Promise<Role> {
         const roleToUpdated = this.roleRepository.findOne({
@@ -59,6 +70,7 @@ export class RoleService {
             where: {user: {id: idUser}, association: {id: idAssociation}}
         });
     }
+
 
     public async deleteRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number): Promise<boolean> {
         const role = await this.roleRepository.findOne({where: {user: {id: idUser}, association: {id: idAssociation}}});

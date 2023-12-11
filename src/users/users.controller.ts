@@ -46,7 +46,7 @@ export class UsersController {
      * @param roles : Role[]
      * @returns Promise<UserRole[]>
      */
-private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
+    private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
         const newRoles: UserRole[] = [];
 
         if (!roles || roles.length === 0) {
@@ -62,6 +62,33 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
         });
 
         return newRoles; 
+    }
+
+
+    /**
+     * Handle error
+     * @param error 
+     * @throws HttpException or QueryFailedError
+     */
+    private handleError(error: any) {
+        if (error instanceof QueryFailedError) {
+            throw new HttpException(error.message, HttpStatus.CONFLICT);
+        }
+        if (error instanceof HttpException) {
+            switch (error.getStatus()) {
+                case HttpStatus.BAD_REQUEST:
+                    throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+                case HttpStatus.CONFLICT:
+                    throw new HttpException(error.message, HttpStatus.CONFLICT)
+                case HttpStatus.FORBIDDEN:
+                    throw new HttpException(error.message, HttpStatus.FORBIDDEN)
+                case HttpStatus.NOT_FOUND:
+                    throw new HttpException(error.message, HttpStatus.NOT_FOUND)
+                default:
+                    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+        }
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
 
@@ -84,10 +111,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             return newUser;
         } catch (error) {
             console.log(error);
-            if (error instanceof QueryFailedError) {
-                throw new HttpException(error.message, HttpStatus.CONFLICT);
-            }
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -112,10 +136,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             return allUsersDto;
         } catch (error) {
             console.log(error);
-            if (error instanceof QueryFailedError) {
-                throw new HttpException(error.message, HttpStatus.CONFLICT);
-            }
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -138,7 +159,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             }
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -161,10 +182,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             }
         } catch (error) {
             console.log(error);
-            if (error instanceof QueryFailedError) {
-                throw new HttpException(error.message, HttpStatus.CONFLICT);
-            }
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -188,21 +206,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             return this.userToUserDto(userUpdated);
         } catch (error) {
             console.log(error);
-            if (error instanceof QueryFailedError) {
-                throw new HttpException(error.message, HttpStatus.CONFLICT);
-            }
-            if (error instanceof HttpException) {
-                switch (error.getStatus()) {
-                    case HttpStatus.NOT_FOUND:
-                        throw new HttpException(`Could not find a user with the id ${idUser}`, HttpStatus.NOT_FOUND)
-                    case HttpStatus.CONFLICT:
-                        throw new HttpException(error.message, HttpStatus.CONFLICT)
-                    case HttpStatus.FORBIDDEN:
-                        throw new HttpException(error.message, HttpStatus.FORBIDDEN)
-                    default:
-                        throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
-                }
-            }
+            this.handleError(error);
         }
     }
 
@@ -226,7 +230,7 @@ private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
             return true;
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 

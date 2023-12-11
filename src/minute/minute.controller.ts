@@ -5,6 +5,11 @@ import { CreateMinuteDto } from './dto/create-minute.dto';
 import { Minute } from './minute-table-db/minute.entity';
 import { QueryFailedError } from 'typeorm';
 import { UpdateMinuteDto } from './dto/update-minute.dto';
+import { MinuteDto } from './dto/minute.dto';
+import { MinuteVoterDto } from './dto/minute.voter';
+import { User } from 'src/users/user-table-db/user.entity';
+import { MinuteAssociationDto } from './dto/minute.association';
+import { Association } from 'src/associations/association-table-db/association.entity';
 
 @ApiTags('Minutes Endpoints')
 @Controller('minute')
@@ -13,6 +18,102 @@ export class MinuteController {
     constructor(
         private readonly minuteService: MinuteService
     ) {}
+
+
+    /**
+     * DTO Mapping 
+     * from Minute to MinuteDto
+     * @param minute : Minute
+     * @returns newMinute : MinuteDto
+     */
+    private async minuteToMinuteDto(minute: Minute): Promise<MinuteDto> {
+        const newMinute = new MinuteDto();
+
+        newMinute.id = minute.id;
+        newMinute.content = minute.content;
+        newMinute.date = minute.date;
+        newMinute.association = await this.associationToMinuteAssociationDto(minute.association);
+        newMinute.voters = await this.userToMinuteVoterDto(minute.voters);
+
+        return newMinute;
+    }
+
+
+    /**
+     * DTO Mapping 
+     * from User to MinuteVoterDto
+     * @param user : User
+     * @returns newVoter : MinuteVoterDto
+     */
+    private async userToMinuteVoterDto(voters: User[]): Promise<MinuteVoterDto[]> {
+        const newVoters: MinuteVoterDto[] = [];
+
+        if (!voters || voters.length === 0) {
+            return newVoters;
+        }
+
+        voters.forEach(user => {
+            const voter = new MinuteVoterDto();
+
+            voter.idUser = user.id;
+            voter.firstName = user.firstName;
+            voter.lastName = user.lastName;
+            voter.userName = user.userName;
+            voter.age = user.age;
+            
+            newVoters.push(voter);     
+        });
+
+        return newVoters;
+    }
+
+
+    /**
+     * DTO Mapping 
+     * from Association to MinuteAssociationDto
+     * @param association : Association
+     * @returns newAssociation : MinuteAssociationDto
+     */
+    private async associationToMinuteAssociationDto(association: Association): Promise<MinuteAssociationDto> {
+        const newAssociation = new MinuteAssociationDto();
+
+        if (!association) {
+            return newAssociation;
+        }
+
+        newAssociation.idAssociation = association.id;
+        newAssociation.name = association.name;
+
+        return newAssociation;
+    }
+
+
+    /**
+     * Handle error
+     * @param error 
+     * @throws HttpException or QueryFailedError
+     */
+    private handleError(error: any) {
+        if (error instanceof QueryFailedError) {
+            throw new HttpException(error.message, HttpStatus.CONFLICT);
+        }
+        if (error instanceof HttpException) {
+            switch (error.getStatus()) {
+                case HttpStatus.BAD_REQUEST:
+                    throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+                case HttpStatus.CONFLICT:
+                    throw new HttpException(error.message, HttpStatus.CONFLICT)
+                case HttpStatus.FORBIDDEN:
+                    throw new HttpException(error.message, HttpStatus.FORBIDDEN)
+                case HttpStatus.NOT_FOUND:
+                    throw new HttpException(error.message, HttpStatus.NOT_FOUND)
+                default:
+                    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+        }
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
 
     @ApiHeader({
         name: 'Create a minute',
@@ -23,17 +124,16 @@ export class MinuteController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minute has not been created.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
-    public async createMinute(@Body() createMinuteDto: CreateMinuteDto): Promise<Minute> {
+    public async createMinute(@Body() createMinuteDto: CreateMinuteDto): Promise<MinuteDto> {
        try {
-        return await this.minuteService.createMinute(createMinuteDto);
+           const newMinute = await this.minuteService.createMinute(createMinuteDto);
+           return await this.minuteToMinuteDto(newMinute);
        } catch (error) {
            console.log(error);
-           if (error instanceof QueryFailedError) {
-               throw new HttpException(error.message, HttpStatus.CONFLICT);
-           }
-           throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
-       }
+           this.handleError(error);
+        }
     }
+
 
     @ApiHeader({
         name: 'Get All minutes',
@@ -44,14 +144,20 @@ export class MinuteController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minutes have not been retrieved.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
-    public async getAllMinutes(): Promise<Minute[]> {
+    public async getAllMinutes(): Promise<MinuteDto[]> {
         try {
-            return await this.minuteService.getAllMinutes();
+            const minutes = await this.minuteService.getAllMinutes();
+            const newMinutes: MinuteDto[] = [];
+            for (const minute of minutes) {
+                newMinutes.push(await this.minuteToMinuteDto(minute));
+            }
+            return newMinutes;
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
+
 
     @ApiHeader({
         name: 'Get One minute',
@@ -62,14 +168,16 @@ export class MinuteController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minute has not been retrieved.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
-    public async getMinuteById(@Param('idMinute', ParseIntPipe) idMinute: number): Promise<Minute> {
+    public async getMinuteById(@Param('idMinute', ParseIntPipe) idMinute: number): Promise<MinuteDto> {
         try {
-            return await this.minuteService.getMinuteById(idMinute);
+            const minute = await this.minuteService.getMinuteById(idMinute);
+            return await this.minuteToMinuteDto(minute);
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
+
 
     @ApiHeader({
         name: "Get all association's minutes",
@@ -80,14 +188,20 @@ export class MinuteController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minutes have not been retrieved.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
-    public async getMinuteByIdAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<Minute[]> {
+    public async getMinuteByIdAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<MinuteDto[]> {
         try {
-            return await this.minuteService.getMinuteByIdAssociation(idAssociation);
+            const minutes = await this.minuteService.getMinuteByIdAssociation(idAssociation);
+            const newMinutes: MinuteDto[] = [];
+            for (const minute of minutes) {
+                newMinutes.push(await this.minuteToMinuteDto(minute));
+            }
+            return newMinutes;
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
+
 
     @ApiHeader({
         name: 'Update a minute',
@@ -98,14 +212,16 @@ export class MinuteController {
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minute has not been updated.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
-    public async updateMinute(@Param('idMinute', ParseIntPipe) idMinute: number, @Body() newMinute: UpdateMinuteDto): Promise<Minute> {
+    public async updateMinute(@Param('idMinute', ParseIntPipe) idMinute: number, @Body() newMinute: UpdateMinuteDto): Promise<MinuteDto> {
         try {
-            return await this.minuteService.updateMinute(idMinute, newMinute);
+            const minute = await this.minuteService.updateMinute(idMinute, newMinute);
+            return await this.minuteToMinuteDto(minute);
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
+
 
     @ApiHeader({
         name: 'Delete a minute',
@@ -121,7 +237,7 @@ export class MinuteController {
             return await this.minuteService.deleteMinuteById(idMinute);
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 

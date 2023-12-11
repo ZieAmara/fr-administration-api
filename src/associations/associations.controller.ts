@@ -8,6 +8,8 @@ import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AssociationDto } from './dto/association.dto';
 import { QueryFailedError } from 'typeorm';
 import { Member } from './dto/association.member';
+import { AssociationMinuteDto } from './dto/association.minute';
+import { Minute } from 'src/minute/minute-table-db/minute.entity';
 
 @ApiTags('Associations Endpoints')
 @Controller('association')
@@ -30,6 +32,7 @@ export class AssociationsController {
         newAssociation.id = association.id;
         newAssociation.name = association.name;
         newAssociation.members = await this.usersToMembersDto(association.id, association.users);
+        newAssociation.minutes = await this.minutesToAssociationMinutesDto(association.minutes);
 
         return newAssociation;
 
@@ -68,6 +71,63 @@ export class AssociationsController {
     }
 
 
+    /**
+     * DTO Mapping 
+     * from Minute to AssociationMinuteDto
+     * @param minutes 
+     * @returns Promise<AssociationMinuteDto[]>
+     */
+    private async minutesToAssociationMinutesDto(minutes: Minute[]): Promise<AssociationMinuteDto[]> {
+        const newMinutes: AssociationMinuteDto[] = [];
+
+        if (!minutes || minutes.length === 0) {
+            return newMinutes;
+        }
+
+        minutes.forEach(minute => {
+            const newMinute = new AssociationMinuteDto();
+
+            newMinute.id = minute.id;
+            newMinute.content = minute.content;
+            newMinute.date = minute.date;
+            minute.voters.forEach(user => {
+                newMinute.voters.push(user.id);
+            });
+
+            newMinutes.push(newMinute);
+        });
+
+        return newMinutes
+    }
+
+
+    /**
+     * Handle error
+     * @param error 
+     * @throws HttpException or QueryFailedError
+     */
+    private handleError(error: any) {
+        if (error instanceof QueryFailedError) {
+            throw new HttpException(error.message, HttpStatus.CONFLICT);
+        }
+        if (error instanceof HttpException) {
+            switch (error.getStatus()) {
+                case HttpStatus.BAD_REQUEST:
+                    throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
+                case HttpStatus.CONFLICT:
+                    throw new HttpException(error.message, HttpStatus.CONFLICT)
+                case HttpStatus.FORBIDDEN:
+                    throw new HttpException(error.message, HttpStatus.FORBIDDEN)
+                case HttpStatus.NOT_FOUND:
+                    throw new HttpException(error.message, HttpStatus.NOT_FOUND)
+                default:
+                    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+            }
+        }
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+
+
     @ApiHeader({
         name: 'Create an association',
         description: 'This endpoint allows you to create an association.',
@@ -78,19 +138,12 @@ export class AssociationsController {
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
     @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
     public async createAssociation(@Body() createAssociationDto: CreateAssociationDto): Promise<AssociationDto> {
-        let newAssociation = new AssociationDto();
         try {
             const associationCreated = await this.associationService.createAssociation(createAssociationDto);
-            if (associationCreated) {
-                newAssociation = await this.associationToAssociationDto(associationCreated);
-            }
-            return newAssociation;
+            return await this.associationToAssociationDto(associationCreated);
         } catch (error) {
             console.log(error);
-            if (error instanceof QueryFailedError) {
-                throw new HttpException(error.message, HttpStatus.CONFLICT);
-            }
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -114,7 +167,7 @@ export class AssociationsController {
             return allAssociationsDto
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -159,7 +212,7 @@ export class AssociationsController {
             return members
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
@@ -183,7 +236,7 @@ export class AssociationsController {
             return await this.associationToAssociationDto(associationUpdated);
         } catch (error) {
             console.log(error);
-            throw new HttpException("The server encountered an unexpected condition that prevented it from fulfilling the request", HttpStatus.INTERNAL_SERVER_ERROR);
+            this.handleError(error);
         }
     }
 
