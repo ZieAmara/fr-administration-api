@@ -17,10 +17,13 @@ export class MinuteService {
     ) {}
 
     public async createMinute(createMinuteDto: CreateMinuteDto): Promise<Minute> {
+        if (!createMinuteDto) {
+            throw new HttpException( 'Minute not Acceptable', HttpStatus.NOT_ACCEPTABLE);
+        }
         const association = await this.associationService.getAssociationById(createMinuteDto.idAssocation);
         const users = await Promise.all(
-            createMinuteDto.idVoters.map(async (idVoter) => {
-                const user = await this.usersService.getUserById(+idVoter);
+            createMinuteDto.idVoters?.map(async (idVoter) => {
+                const user = await this.usersService.getUserById(idVoter);
                 return user? user : null;
             })
         )
@@ -36,22 +39,31 @@ export class MinuteService {
             voters: voters,
             association: association
         })
-        return;
+
+        return await this.minuteRepository.save(minuteCreated);
     }
 
 
     public async getAllMinutes(): Promise<Minute[]> {
-        return await this.minuteRepository.find();
+        return await this.minuteRepository.find({
+            relations: ['voters', 'association']
+        });
     }
 
 
     public async getMinuteById(idMinute: number): Promise<Minute> {
-        return await this.minuteRepository.findOne({where: {id: idMinute}});
+        return await this.minuteRepository.findOne({
+            where: {id: idMinute},
+            relations: ['voters', 'association']
+        });
     }
 
 
     public async getMinuteByIdAssociation(idAssocation: number): Promise<Minute[]> {
-        return await this.minuteRepository.find({where: {association: {id: idAssocation}}});
+        return await this.minuteRepository.find({
+            where: {association: {id: idAssocation}},
+            relations: ['voters', 'association']
+        });
     }
 
 
@@ -82,7 +94,10 @@ export class MinuteService {
 
         await this.minuteRepository.save(await minuteToUpdate);
 
-        return this.minuteRepository.findOne({where: {id: idMinute}});
+        return this.minuteRepository.findOne({
+            where: {id: idMinute},
+            relations: ['voters', 'association']
+        });
     }
 
 

@@ -79,7 +79,7 @@ describe('AssociationsController', () => {
   describe('getAllAssociations', () => {
     it('should return an array of associations', async () => {
       const resultExpected = Promise.all(associations);
-      jest.spyOn(associationService, 'getAssociations').mockImplementation(() => resultExpected);
+      jest.spyOn(associationService, 'getAllAssociations').mockImplementation(() => resultExpected);
       expect(await associationController.getAllAssociations()).toEqual(resultExpectedDto);
     });
   });

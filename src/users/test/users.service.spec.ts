@@ -93,7 +93,7 @@ describe('UsersService', () => {
     const resultExpected = Promise.resolve(usersSetExpected[0]);
     it('should return an user', async () => {
       await expect(usersService.getUserById(0)).resolves.toEqual(await resultExpected);
-      expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({where: {id: 0}});
+      expect(usersRepositoryMock.findOne).toHaveBeenCalledWith({where: {id: 0}, relations: ['roles']});
     });
   });
 

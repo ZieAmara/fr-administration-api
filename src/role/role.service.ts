@@ -30,27 +30,30 @@ export class RoleService {
             user: user,
             association: association
         });
-        await this.roleRepository.save(roleCreated);
-
-        return roleCreated;
+        
+        return await this.roleRepository.save(roleCreated);
     }
 
 
     public async getAllRoles(): Promise<Role[]> {
-        return await this.roleRepository.find();
+        return await this.roleRepository.find({
+            relations: ['user', 'association']
+        });
     }
 
 
     public async getRolesByName(name: string): Promise<Role[]> {
         return await this.roleRepository.find({
-            where: {name: name}
+            where: {name: name},
+            relations: ['user', 'association']
         });
     }
     
 
     public async getUserRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number): Promise<Role> {
         return await this.roleRepository.findOne({
-            where: {user: {id: idUser}, association: {id: idAssociation}}
+            where: {user: {id: idUser}, association: {id: idAssociation}},
+            relations: ['user', 'association']
         });
     }
 
@@ -66,8 +69,10 @@ export class RoleService {
             (await roleToUpdated).name = newRole.name
             await this.roleRepository.save(await roleToUpdated);
         }
+
         return this.roleRepository.findOne({
-            where: {user: {id: idUser}, association: {id: idAssociation}}
+            where: {user: {id: idUser}, association: {id: idAssociation}},
+            relations: ['user', 'association']
         });
     }
 
@@ -77,7 +82,9 @@ export class RoleService {
         if (!role) {
             throw new HttpException( `Role with idUser ${idUser} and idAssociation ${idAssociation} not found`, HttpStatus.NOT_FOUND);
         }
+        
         await this.roleRepository.delete(role);
+
         return true;
     }
 

@@ -35,7 +35,6 @@ export class AssociationsController {
         newAssociation.minutes = await this.minutesToAssociationMinutesDto(association.minutes);
 
         return newAssociation;
-
     }
 
 
@@ -46,7 +45,7 @@ export class AssociationsController {
      * @param users : User[]
      * @returns Promise<Member[]>
      */
-    private async usersToMembersDto(idAssociatoion: number, users: User[]): Promise<Member[]> {
+    private async usersToMembersDto(idAssociation: number, users: User[]): Promise<Member[]> {
         const members: Member[] = [];
 
         if (!users || users.length === 0) {
@@ -55,15 +54,19 @@ export class AssociationsController {
 
         users.forEach(user => {
             const member = new Member();
+
             member.id = user.id;
             member.firstName = user.firstName;
             member.lastName = user.lastName;
             member.userName = user.userName;
             member.age = user.age;
-            member.role = user.roles
-                .map(role => (role.association.id === idAssociatoion) ? role.name : null)
-                .filter(role => role !== null)
-                .join(', ');
+            member.role = user.roles 
+                ? user.roles
+                    .map(role => (role.association.id === idAssociation) ? role.name : null)
+                    .filter(role => role !== null)
+                    .join(', ')
+                : '';
+
             members.push(member);
         });
 
@@ -160,7 +163,7 @@ export class AssociationsController {
     public async getAllAssociations(): Promise<AssociationDto[]> {
         try {
             const allAssociationsDto: AssociationDto[] = [];
-            const associations = await this.associationService.getAssociations();
+            const associations = await this.associationService.getAllAssociations();
             for (const association of associations) {
                 allAssociationsDto.push(await this.associationToAssociationDto(association));
             }
@@ -188,6 +191,32 @@ export class AssociationsController {
             throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         return await this.associationToAssociationDto(association);
+    }
+
+
+    @ApiHeader({
+        name: 'Get association minutes',
+        description: 'This endpoint allows you to get all minutes of an association.',
+    })
+    @Get(':idAssociation/minutes')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The minutes have been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The minutes have not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'Association not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async getMinutesOfAssociation(@Param('idAssociation', ParseIntPipe) idAssociation: number): Promise<AssociationMinuteDto[]> {
+        const association = await this.associationService.getAssociationById(idAssociation);
+        if (!association) {
+            throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
+        }
+        try {
+            const minutes = await this.associationService.getMinutesOfAssociation(idAssociation);
+            const newMinutes = await this.minutesToAssociationMinutesDto(minutes);
+            return newMinutes
+        } catch (error) {
+            console.log(error);
+            this.handleError(error);
+        }
     }
 
 

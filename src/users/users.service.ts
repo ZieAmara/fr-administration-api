@@ -34,12 +34,17 @@ export class UsersService {
 
 
     public async getAllUsers(): Promise<User[]> {
-        return await this.userRepository.find();
+        return await this.userRepository.find({
+            relations: ['roles']
+        });
     }
 
 
     public async getUserById(idUser: number): Promise<User> {
-        const user = await this.userRepository.findOne({where: {id: idUser}});
+        const user = await this.userRepository.findOne({
+            where: {id: idUser},
+            relations: ['roles']
+        });
         if (!user) {
             throw new HttpException(`Could not find a user with the id ${idUser}`, HttpStatus.NOT_FOUND)
         }
@@ -48,7 +53,10 @@ export class UsersService {
 
 
     public async getUserRolesById(idUser: number): Promise<Role[]> {
-        const user = await this.userRepository.findOne({where: {id: idUser}});
+        const user = await this.userRepository.findOne({
+            where: {id: idUser},
+            relations: ['roles']
+        });
         if (!user) {
             throw new HttpException(`Could not find a user with the id ${idUser}`, HttpStatus.NOT_FOUND)
         }
@@ -57,7 +65,10 @@ export class UsersService {
 
 
     public async getUserByUserName(userName: string): Promise<User> {
-        return await this.userRepository.findOne({where: {userName: userName}});
+        return await this.userRepository.findOne({
+            where: {userName: userName},
+            relations: ['roles']
+        });
     }
 
 
@@ -81,7 +92,10 @@ export class UsersService {
             }
 
             await this.userRepository.save(await user);
-            return this.userRepository.findOne({where: {id: idUser}});
+            return this.userRepository.findOne({
+                where: {id: idUser},
+                relations: ['roles']
+            });
         }
         return null;
     }
