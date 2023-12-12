@@ -26,7 +26,7 @@ export class UserValidedDto {
     @ApiProperty({
         type: String,
         description: "The username of the user",
-        example: "johndoe",
+        example: "john.doe",
         uniqueItems: true,
     })
     userName: string

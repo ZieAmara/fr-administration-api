@@ -5,8 +5,7 @@ export class LogInDto {
     @ApiProperty({
         type: String,
         description: "The username of the user",
-        example: "johndoe",
-        uniqueItems: true,
+        example: "adam.dro",
         nullable: false,
     })
     userName: string;
@@ -14,7 +13,7 @@ export class LogInDto {
     @ApiProperty({
         type: String,
         description: "The password of the user",
-        example: "secret",
+        example: "password",
         nullable: false,
     })
     userPassword: string;

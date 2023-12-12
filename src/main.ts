@@ -32,6 +32,16 @@ async function bootstrap() {
     referrerPolicy: { policy: 'no-referrer' }, // Referrer-Policy: no-referrer 
   }));
 
-  await app.listen(3000);
+  const corsOptions = {
+    origin: 'http://localhost:4200',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
+
+  app.enableCors(corsOptions);
+  
+  await app.listen(3001);
+
 }
 bootstrap();

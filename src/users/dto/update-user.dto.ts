@@ -19,6 +19,14 @@ export class UpdateUserDto {
     firstName?: string;
 
     @ApiProperty({
+        type: String,
+        description: "The username of the user",
+        example: "john.doe",
+        required: false
+    })
+    userName?: string;
+
+    @ApiProperty({
         type: Number,
         description: "The age of the user",
         example: 30,

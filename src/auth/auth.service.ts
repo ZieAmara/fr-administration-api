@@ -14,21 +14,25 @@ export class AuthService {
         private readonly jwtService: JwtService
     ) {}
 
+
     public async validateUser(logInDto: LogInDto) : Promise<UserValidedDto>{
-        const user = await this.usersService.getUserByUserName(logInDto.userName);
+        const user: any = await this.usersService.getUserByUserName(logInDto.userName);
         if (!user) {
-            throw new UnauthorizedException();
-        } else {
-            const isMatch = await bcrypt.compare(logInDto.userPassword, user.userPassword);
-            if (!isMatch) {
-            throw new UnauthorizedException();}
+            throw new UnauthorizedException('User not found');
         }
-        const { userPassword, ...result } = user;
+        
+        const isMatch = await bcrypt.compare(logInDto.userPassword, user.userPassword);
+        if (!isMatch) {
+            throw new UnauthorizedException('Wrong password');
+        }
+
+        const { id, userPassword, roles, ...result } = user;
         return result;
     }
 
-    async login(user: any) {
-        const payload = { userName: user.userName, sub: user.id };
+
+    async logIn(user: LogInDto) {
+        const payload = { user_name: user.userName, user_password: user.userPassword };
         return {
             access_token: this.jwtService.sign(payload),
         };
