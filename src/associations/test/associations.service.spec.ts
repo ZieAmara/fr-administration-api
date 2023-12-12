@@ -12,6 +12,20 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(()
   findOne: jest.fn(entity => entity),
 }));
 
+const associations = [
+  {
+    id: 0,
+    users: [
+      { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password', roles: [] },
+      { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password', roles: [] },
+      { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password', roles: [] }
+    ],
+    name: 'Association test',
+    roles: [],
+    minutes: []
+  }
+]
+
 
 describe('AssociationsService', () => {
   let associationService: AssociationsService;
@@ -38,17 +52,7 @@ describe('AssociationsService', () => {
 
   describe('createAssociation', () => {
     it('should return an association', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        Users: [
-          { id: 0, lastName: 'Doe', firstName: 'John', age: 0, userName: 'john.doe', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Kim', firstName: 'Jane', age: 0, userName: 'jane.kim', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Lee', firstName: 'Mark', age: 0, userName: 'mark.lee', userPassword: 'password', roles: [] },
-        ],
-        name: 'Association test',
-        roles: [],
-        minutes: []
-      });
+      const resultExpected = Promise.resolve(associations[0]);
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => resultExpected);
       expect(await associationService.createAssociation({ idUsers: [1, 2, 3], name: 'Association test' })).toBe(await resultExpected);
     });
@@ -56,37 +60,15 @@ describe('AssociationsService', () => {
 
   describe('getAllAssociations', () => {
     it('should return an array of associations', async () => {
-      const resultExpected = Promise.all([
-        {
-          id: 0,
-          Users: [
-            { id: 0, lastName: 'Doe', firstName: 'John', age: 0, userName: 'john.doe', userPassword: 'password', roles: [] },
-            { id: 0, lastName: 'Kim', firstName: 'Jane', age: 0, userName: 'jane.kim', userPassword: 'password', roles: [] },
-            { id: 0, lastName: 'Lee', firstName: 'Mark', age: 0, userName: 'mark.lee', userPassword: 'password', roles: [] },
-          ],
-          name: 'Association test',
-          roles: [],
-          minutes: []
-        },
-      ]);
-      jest.spyOn(associationService, 'getAssociations').mockImplementation(() => resultExpected);
-      expect(await associationService.getAssociations()).toBe(await resultExpected);
+      const resultExpected = Promise.all(associations);
+      jest.spyOn(associationService, 'getAllAssociations').mockImplementation(() => resultExpected);
+      expect(await associationService.getAllAssociations()).toBe(await resultExpected);
     });
   });
 
   describe('getAssociationById', () => {
     it('should return an association', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        Users: [
-          { id: 0, lastName: 'Doe', firstName: 'John', age: 0, userName: 'john.doe', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Kim', firstName: 'Jane', age: 0, userName: 'jane.kim', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Lee', firstName: 'Mark', age: 0, userName: 'mark.lee', userPassword: 'password', roles: [] },
-        ],
-        name: 'Association test',
-        roles: [],
-        minutes: []
-      });
+      const resultExpected = Promise.resolve(associations[0]);
       jest.spyOn(associationService, 'getAssociationById').mockImplementation(() => resultExpected);
       expect(await associationService.getAssociationById(0)).toBe(await resultExpected);
     });
@@ -104,17 +86,7 @@ describe('AssociationsService', () => {
 
   describe('updateAssociation', () => {
     it('should return an association', async () => {
-      const resultExpected = Promise.resolve({
-        id: 0,
-        Users: [
-          { id: 0, lastName: 'Doe', firstName: 'John', age: 0, userName: 'john.doe', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Kim', firstName: 'Jane', age: 0, userName: 'jane.kim', userPassword: 'password', roles: [] },
-          { id: 0, lastName: 'Lee', firstName: 'Mark', age: 0, userName: 'mark.lee', userPassword: 'password', roles: [] },
-        ],
-        name: 'Association test',
-        roles: [],
-        minutes: []
-      });
+      const resultExpected = Promise.resolve(associations[0]);
       jest.spyOn(associationService, 'updateAssociation').mockImplementation(() => resultExpected);
       expect(await associationService.updateAssociation(0, { idUsers: [1, 2, 3], name: 'Association test' })).toBe(await resultExpected);
     });

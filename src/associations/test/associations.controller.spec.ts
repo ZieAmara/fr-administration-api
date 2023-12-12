@@ -35,7 +35,8 @@ const resultExpectedDto = [
       { id: 1, firstName: 'John', lastName: 'Doe', userName: 'john.doe', age: 30, role: '' },
       { id: 2, firstName: 'Jane', lastName: 'Doe', userName: 'jane.doe', age: 28, role: '' },
       { id: 3, firstName: 'Bob', lastName: 'Smith', userName: 'bob.smith', age: 35, role: '' }
-    ]
+    ],
+    minutes: []
   }
 ]
 
@@ -69,15 +70,7 @@ describe('AssociationsController', () => {
   describe('createAssociation', () => {
     it('should return an association', async () => {
       const associationExpected = Promise.resolve(associations[0]);
-      const resultExpected = Promise.resolve({
-        id: 0,
-        name: 'Association test', 
-        members: [
-          { id: 1, firstName: 'John', lastName: 'Doe', userName: 'john.doe', age: 30, role: '' },
-          { id: 2, firstName: 'Jane', lastName: 'Doe', userName: 'jane.doe', age: 28, role: '' },
-          { id: 3, firstName: 'Bob', lastName: 'Smith', userName: 'bob.smith', age: 35, role: '' }
-        ]
-      });
+      const resultExpected = Promise.resolve(resultExpectedDto[0]);
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => associationExpected);
       expect(await associationController.createAssociation({idUsers: [1, 2, 3], name: 'Association test'})).toEqual(await resultExpected);
     });
@@ -86,7 +79,7 @@ describe('AssociationsController', () => {
   describe('getAllAssociations', () => {
     it('should return an array of associations', async () => {
       const resultExpected = Promise.all(associations);
-      jest.spyOn(associationService, 'getAssociations').mockImplementation(() => resultExpected);
+      jest.spyOn(associationService, 'getAllAssociations').mockImplementation(() => resultExpected);
       expect(await associationController.getAllAssociations()).toEqual(resultExpectedDto);
     });
   });

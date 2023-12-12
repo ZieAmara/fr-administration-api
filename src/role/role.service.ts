@@ -16,6 +16,7 @@ export class RoleService {
         private readonly associationsService: AssociationsService,
     ) {}
 
+
     public async createRole(createRoleDto: CreateRoleDto): Promise<Role> {
         const user = await this.usersService.getUserById(createRoleDto.idUser);
         const association = await this.associationsService.getAssociationById(createRoleDto.idAssociation);
@@ -29,20 +30,33 @@ export class RoleService {
             user: user,
             association: association
         });
-        await this.roleRepository.save(roleCreated);
-
-        return roleCreated;
+        
+        return await this.roleRepository.save(roleCreated);
     }
+
 
     public async getAllRoles(): Promise<Role[]> {
-        return await this.roleRepository.find();
+        return await this.roleRepository.find({
+            relations: ['user', 'association']
+        });
     }
+
+
+    public async getRolesByName(name: string): Promise<Role[]> {
+        return await this.roleRepository.find({
+            where: {name: name},
+            relations: ['user', 'association']
+        });
+    }
+    
 
     public async getUserRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number): Promise<Role> {
         return await this.roleRepository.findOne({
-            where: {user: {id: idUser}, association: {id: idAssociation}}
+            where: {user: {id: idUser}, association: {id: idAssociation}},
+            relations: ['user', 'association']
         });
     }
+
 
     public async updateRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number, newRole: UpdateRoleDto): Promise<Role> {
         const roleToUpdated = this.roleRepository.findOne({
@@ -55,17 +69,22 @@ export class RoleService {
             (await roleToUpdated).name = newRole.name
             await this.roleRepository.save(await roleToUpdated);
         }
+
         return this.roleRepository.findOne({
-            where: {user: {id: idUser}, association: {id: idAssociation}}
+            where: {user: {id: idUser}, association: {id: idAssociation}},
+            relations: ['user', 'association']
         });
     }
+
 
     public async deleteRoleByIdUserAndIdAssociation(idUser: number, idAssociation: number): Promise<boolean> {
         const role = await this.roleRepository.findOne({where: {user: {id: idUser}, association: {id: idAssociation}}});
         if (!role) {
             throw new HttpException( `Role with idUser ${idUser} and idAssociation ${idAssociation} not found`, HttpStatus.NOT_FOUND);
         }
+        
         await this.roleRepository.delete(role);
+
         return true;
     }
 

@@ -5,6 +5,7 @@ import { UpdateAssociationDto } from '../associations/dto/update-association.dto
 import { UsersService } from '../users/users.service';
 import { Repository } from 'typeorm';
 import { User } from '../users/user-table-db/user.entity';
+import { Minute } from 'src/minute/minute-table-db/minute.entity';
 
 @Injectable()
 export class AssociationsService {
@@ -15,33 +16,60 @@ export class AssociationsService {
         private readonly usersService: UsersService
     ) {}
 
+
     public async createAssociation(createAssociationDto: CreateAssociationDto): Promise<Association> {
         const associationCreated = this.associationsRepository.create({
             name: createAssociationDto.name
         });
         const users = await Promise.all(
             createAssociationDto.idUsers.map(async (idUser) => {
-                const user = await this.usersService.getUserById(+idUser);
+                const user = await this.usersService.getUserById(idUser);
+                if (!user) {
+                    throw new Error('User not found');
+                }
                 return user? user : null;
             })
         )
         associationCreated.users = users.filter(user => user !== null);
-        await this.associationsRepository.save(associationCreated);
-        return associationCreated;
+        
+        return await this.associationsRepository.save(associationCreated);
     }
 
-    public async getAssociations(): Promise<Association[]> {
-        return await this.associationsRepository.find();
+
+    public async getAllAssociations(): Promise<Association[]> {
+        const associations = await this.associationsRepository.find({
+            relations: ['users', 'minutes']
+        });
+        return associations;
     }
+
 
     public async getAssociationById(associationId: number): Promise<Association> {
-        return await this.associationsRepository.findOne({where: {id: associationId}});
+        const association = await this.associationsRepository.findOne({
+            where: {id: associationId},
+            relations: ['users', 'minutes']
+        });
+        return association;
     }
 
+
     public async getMembersOfAssociation(associationId: number): Promise<User[]> {
-        const association = await this.associationsRepository.findOne({where: {id: associationId}});
+        const association = await this.associationsRepository.findOne({
+            where: {id: associationId},
+            relations: ['users']
+        });
         return association.users;
     }
+
+
+    public async getMinutesOfAssociation(associationId: number): Promise<Minute[]> {
+        const association = await this.associationsRepository.findOne({
+            where: {id: associationId},
+            relations: ['minutes'],
+        });
+        return association.minutes;
+    }
+
 
     public async updateAssociation(associationId: number, association: UpdateAssociationDto): Promise<Association> {
         const associationUpdated = this.associationsRepository.findOne({where: {id: associationId}});
@@ -60,10 +88,15 @@ export class AssociationsService {
             }
 
             await this.associationsRepository.save(await associationUpdated);
-            return this.associationsRepository.findOne({where: {id: associationId}});
+            const result = await this.associationsRepository.findOne({
+                where: {id: associationId},
+                relations: ['users']
+            });
+            return result;
         }
         return null;
     }
+
 
     public async deleteAssociation(associationId: number): Promise<boolean> {
         const association = this.associationsRepository.findOne({where: {id: associationId}});
