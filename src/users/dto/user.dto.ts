@@ -1,3 +1,4 @@
+import { UserAssociationDto } from "./user.association";
 import { UserRole } from "./user.role";
 
 export class UserDto {
@@ -7,5 +8,6 @@ export class UserDto {
     public userName: string;
     public mail: string;
     public age: number;
+    public associations: UserAssociationDto[];
     public roles: UserRole[];
 }

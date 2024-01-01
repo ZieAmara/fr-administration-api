@@ -1,5 +1,6 @@
+import { Association } from "../../associations/association-table-db/association.entity";
 import { Role } from "../../role/role-table-db/role.entity";
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class User {
@@ -49,6 +50,10 @@ export class User {
         nullable: false
     })
     userPassword: string;
+
+
+    @ManyToMany(() => Association, association => association.users)
+    associations: Association[];
 
     @OneToMany(() => Role, role => role.user, {
         cascade: true,

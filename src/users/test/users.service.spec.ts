@@ -4,13 +4,14 @@ import { UsersService } from '../users.service';
 import { Repository } from 'typeorm';
 import { User } from '../user-table-db/user.entity';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { UserDTOMapping } from '../dto/user.dto.mapping';
 
 
 const usersSetExpected : User[] = [
-  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456', roles: [] },
-  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', mail: 'jane.doe@example.com', userPassword: '000000', roles: [] },
-  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', mail: 'alex.lee@example.com', userPassword: 'Lee123', roles: [] },
-  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', mail: 'ali.sow@example.com', userPassword: 'Sow1&3', roles: [] },
+  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456', associations: [], roles: [] },
+  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', mail: 'jane.doe@example.com', userPassword: '000000', associations: [], roles: [] },
+  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', mail: 'alex.lee@example.com', userPassword: 'Lee123', associations: [], roles: [] },
+  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', mail: 'ali.sow@example.com', userPassword: 'Sow1&3', associations: [], roles: [] },
 ];
 
 export type MockType<T> = {
@@ -36,7 +37,8 @@ describe('UsersService', () => {
         {
           provide: 'USER_REPOSITORY',
           useFactory: repositoryMockFactory
-        }
+        },
+        UserDTOMapping,
       ],
     }).compile();
 
@@ -55,7 +57,7 @@ describe('UsersService', () => {
       const createUserDto: CreateUserDto = {
         lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456',
       };
-      const {id, userPassword, roles, ...resultExpected} = usersSetExpected[0];
+      const {id, userPassword, roles, associations, ...resultExpected} = usersSetExpected[0];
       await expect(usersService.createUser(createUserDto).then(
         user => {
           createUserDto.userPassword = user.userPassword;

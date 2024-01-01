@@ -9,6 +9,9 @@ import { QueryFailedError } from 'typeorm';
 import { Role } from 'src/role/role-table-db/role.entity';
 import { UserDto } from './dto/user.dto';
 import { UserRole } from './dto/user.role';
+import { Association } from 'src/associations/association-table-db/association.entity';
+import { UserAssociationDto } from './dto/user.association';
+import { UserDTOMapping } from './dto/user.dto.mapping';
 
 @ApiTags('Users Endpoints')
 @Controller('user')
@@ -16,81 +19,8 @@ export class UsersController {
 
     constructor(
         private readonly usersService: UsersService,
+        private readonly usersDTOMapping: UserDTOMapping
     ){}
-
-
-    /**
-     * DTO Mapping 
-     * from User to UserDto
-     * @param user : User
-     * @returns newUser : UserDto
-     */
-    private async userToUserDto(user: User): Promise<UserDto> {
-        const newUser = new UserDto();
-
-        newUser.id = user.id;
-        newUser.lastName = user.lastName;
-        newUser.firstName = user.firstName;
-        newUser.userName = user.userName;
-        newUser.mail = user.mail;
-        newUser.age = user.age;
-        newUser.roles = await this.rolesToRolesDto(user.roles);
-
-        return newUser;
-    }
-
-
-    /**
-     * DTO Mapping 
-     * from Role to UserRole
-     * @param idUser : number
-     * @param roles : Role[]
-     * @returns Promise<UserRole[]>
-     */
-    private async rolesToRolesDto(roles: Role[]): Promise<UserRole[]> {
-        const newRoles: UserRole[] = [];
-
-        if (!roles || roles.length === 0) {
-            return newRoles;
-        }
-
-        roles.forEach(role => {
-            const newRole = new UserRole();
-            newRole.id = role.id;
-            newRole.idAssociation = role.association.id;
-            newRole.name = role.name;
-            newRoles.push(newRole);
-        });
-
-        return newRoles; 
-    }
-
-
-    /**
-     * Handle error
-     * @param error 
-     * @throws HttpException or QueryFailedError
-     */
-    private handleError(error: any) {
-        if (error instanceof QueryFailedError) {
-            throw new HttpException(error.message, HttpStatus.CONFLICT);
-        }
-        if (error instanceof HttpException) {
-            switch (error.getStatus()) {
-                case HttpStatus.BAD_REQUEST:
-                    throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
-                case HttpStatus.CONFLICT:
-                    throw new HttpException(error.message, HttpStatus.CONFLICT)
-                case HttpStatus.FORBIDDEN:
-                    throw new HttpException(error.message, HttpStatus.FORBIDDEN)
-                case HttpStatus.NOT_FOUND:
-                    throw new HttpException(error.message, HttpStatus.NOT_FOUND)
-                default:
-                    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-        }
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
-    }
 
 
     @ApiHeader({
@@ -107,12 +37,12 @@ export class UsersController {
         try {
             const userCreated = await this.usersService.createUser(createUserDto);
             if (userCreated) {
-                newUser = await this.userToUserDto(userCreated);
+                newUser = await this.usersDTOMapping.userToUserDto(userCreated);
             }
             return newUser;
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -132,12 +62,12 @@ export class UsersController {
             const allUsersDto: UserDto[] = [];
             const users = await this.usersService.getAllUsers();
             for (const user of users) {
-                allUsersDto.push(await this.userToUserDto(user));
+                allUsersDto.push(await this.usersDTOMapping.userToUserDto(user));
             }
             return allUsersDto;
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -156,11 +86,11 @@ export class UsersController {
         try {
             const user = await this.usersService.getUserById(idUser);
             if (user) {
-                return await this.userToUserDto(user);
+                return await this.usersDTOMapping.userToUserDto(user);
             }
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -179,11 +109,11 @@ export class UsersController {
         try {
             const user = await this.usersService.getUserByUserName(userName);
             if (user) {
-                return await this.userToUserDto(user);
+                return await this.usersDTOMapping.userToUserDto(user);
             }
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -202,11 +132,34 @@ export class UsersController {
         try {
             const userRoles = await this.usersService.getUserRolesById(idUser);
             if (userRoles) {
-                return await this.rolesToRolesDto(userRoles);
+                return await this.usersDTOMapping.rolesToRolesDto(userRoles);
             }
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
+        }
+    }
+
+
+    @ApiHeader({
+        name: 'Get the associations of an User',
+        description: 'This endpoint allows you to get the associations of an user.',
+    })
+    @Get(':userName/associations')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The associations have been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The associations have not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async getUserAssociations(@Param('userName') userName: string): Promise<UserAssociationDto[]> {
+        try {
+            const userAssociations = await this.usersService.getUserAssociations(userName);
+            if (userAssociations) {
+                return await this.usersDTOMapping.associationsToAssociationsDto(userAssociations);
+            }
+        } catch (error) {
+            console.log(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -227,10 +180,10 @@ export class UsersController {
             if (userUpdated === null) {
                 throw new HttpException(`Could not find a user with the id ${idUser}`, HttpStatus.NOT_FOUND)
             }
-            return this.userToUserDto(userUpdated);
+            return this.usersDTOMapping.userToUserDto(userUpdated);
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 
@@ -254,7 +207,7 @@ export class UsersController {
             return true;
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.usersDTOMapping.handleError(error);
         }
     }
 

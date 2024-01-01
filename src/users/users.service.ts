@@ -4,6 +4,7 @@ import { User } from './user-table-db/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt'
 import { Role } from 'src/role/role-table-db/role.entity';
+import { Association } from 'src/associations/association-table-db/association.entity';
 
 @Injectable()
 export class UsersService {
@@ -66,10 +67,30 @@ export class UsersService {
 
 
     public async getUserByUserName(userName: string): Promise<User> {
-        return await this.userRepository.findOne({
-            where: [{userName: userName},{mail: userName}],
+        const user = await this.userRepository.findOne({
+            where: {userName: userName},
             relations: ['roles']
         });
+        if (!user) {
+            throw new HttpException(`Could not find a user with the username ${userName}`, HttpStatus.NOT_FOUND)
+        }
+        return user;
+    }
+
+
+    public async getUserAssociations(userName: string): Promise<Association[]> {
+        const user = await this.userRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.roles', 'roles')
+            .leftJoinAndSelect('user.associations', 'associations')
+            .leftJoinAndSelect('associations.users', 'association_users')
+            .where('user.userName = :userName OR user.mail = :userName', { userName })
+            .getOne();
+            
+        if (!user) {
+            throw new HttpException(`Could not find a user with the username ${userName}`, HttpStatus.NOT_FOUND)
+        }
+        return user.associations;
     }
 
 
@@ -87,6 +108,9 @@ export class UsersService {
             }
             if (updateUserDto.userName) {
                 (await user).userName = updateUserDto.userName;
+            }
+            if (updateUserDto.mail) {
+                (await user).mail = updateUserDto.mail;
             }
             if (updateUserDto.userPassword) {
                 (await user).userPassword = updateUserDto.userPassword;

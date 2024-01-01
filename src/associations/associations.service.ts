@@ -19,7 +19,8 @@ export class AssociationsService {
 
     public async createAssociation(createAssociationDto: CreateAssociationDto): Promise<Association> {
         const associationCreated = this.associationsRepository.create({
-            name: createAssociationDto.name
+            name: createAssociationDto.name,
+            description: createAssociationDto.description
         });
         const users = await Promise.all(
             createAssociationDto.idUsers.map(async (idUser) => {
@@ -85,6 +86,9 @@ export class AssociationsService {
             }
             if (association.name) {
                 (await associationUpdated).name = association.name
+            }
+            if (association.description) {
+                (await associationUpdated).description = association.description
             }
 
             await this.associationsRepository.save(await associationUpdated);

@@ -3,5 +3,6 @@ export class MinuteVoterDto {
     firstName: string;
     lastName: string;
     userName: string;
+    mail: string;
     age: number;
 }

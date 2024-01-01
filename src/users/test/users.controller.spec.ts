@@ -4,6 +4,7 @@ import { UsersService } from '../users.service';
 import { Repository } from 'typeorm';
 import { User } from '../user-table-db/user.entity';
 import { UserDto } from '../dto/user.dto';
+import { UserDTOMapping } from '../dto/user.dto.mapping';
 
 
 export type MockType<T> = {
@@ -15,17 +16,17 @@ export const repositoryMockFactory: () => MockType<Repository<any>> = jest.fn(()
 }));
 
 const users: User[] = [
-  { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', mail: 'john.doe@example.com', userPassword:"mdp", roles: [] },
-  { id: 1, lastName: 'Lee', firstName: 'Jane', age: 50, userName: 'jane.lee', mail: 'jane.lee@example.com', userPassword:"mdp", roles: [] },
-  { id: 2, lastName: 'Sow', firstName: 'Ali', age: 16, userName: 'ali.sow', mail: 'ali.sow@example.com', userPassword:"mdp", roles: [] },
-  { id: 3, lastName: 'Smith', firstName: 'Bob', age: 35, userName: 'bob.smith', mail: 'bob.smith@example.com', userPassword:"mdp", roles: [] }
+  { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', mail: 'john.doe@example.com', userPassword:"mdp", associations:[], roles: [] },
+  { id: 1, lastName: 'Lee', firstName: 'Jane', age: 50, userName: 'jane.lee', mail: 'jane.lee@example.com', userPassword:"mdp", associations:[], roles: [] },
+  { id: 2, lastName: 'Sow', firstName: 'Ali', age: 16, userName: 'ali.sow', mail: 'ali.sow@example.com', userPassword:"mdp", associations:[], roles: [] },
+  { id: 3, lastName: 'Smith', firstName: 'Bob', age: 35, userName: 'bob.smith', mail: 'bob.smith@example.com', userPassword:"mdp", associations:[], roles: [] }
 ]
 
 const resultExpectedDto : UserDto[] = [
-  { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', mail: 'john.doe@example.com', roles: [] },
-  { id: 1, lastName: 'Lee', firstName: 'Jane', age: 50, userName: 'jane.lee', mail: 'jane.lee@example.com', roles: [] },
-  { id: 2, lastName: 'Sow', firstName: 'Ali', age: 16, userName: 'ali.sow', mail: 'ali.sow@example.com', roles: [] },
-  { id: 3, lastName: 'Smith', firstName: 'Bob', age: 35, userName: 'bob.smith', mail: 'bob.smith@example.com', roles: [] }
+  { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'john.doe', mail: 'john.doe@example.com', associations:[], roles: [] },
+  { id: 1, lastName: 'Lee', firstName: 'Jane', age: 50, userName: 'jane.lee', mail: 'jane.lee@example.com', associations:[], roles: [] },
+  { id: 2, lastName: 'Sow', firstName: 'Ali', age: 16, userName: 'ali.sow', mail: 'ali.sow@example.com', associations:[], roles: [] },
+  { id: 3, lastName: 'Smith', firstName: 'Bob', age: 35, userName: 'bob.smith', mail: 'bob.smith@example.com', associations:[], roles: [] }
 ];
 
 
@@ -41,7 +42,8 @@ describe('UsersController', () => {
         {
           provide: 'USER_REPOSITORY',
           useFactory: repositoryMockFactory
-        }
+        },
+        UserDTOMapping,
       ],
     }).compile();
 

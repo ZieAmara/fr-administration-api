@@ -22,7 +22,7 @@ export class Association {
     })
     description: string;
 
-    @ManyToMany(() => User)
+    @ManyToMany(() => User, user => user.associations)
     @JoinTable({
         name: 'association_users',
         joinColumn: {

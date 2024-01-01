@@ -54,6 +54,7 @@ export class RoleController {
         newUsers.firstName = user.firstName;
         newUsers.lastName = user.lastName;
         newUsers.userName = user.userName;
+        newUsers.mail = user.mail;
         newUsers.age = user.age;
 
         return newUsers;
@@ -75,6 +76,7 @@ export class RoleController {
 
         newAssociation.idAssociation = association.id;
         newAssociation.name = association.name;
+        newAssociation.description = association.description;
 
         return newAssociation;
     }
