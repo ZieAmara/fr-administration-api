@@ -16,11 +16,12 @@ const associations = [
   {
     id: 0,
     users: [
-      { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password', roles: [] },
-      { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password', roles: [] },
-      { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password', roles: [] }
+      { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', mail : 'john.doe@example.com', userPassword: 'password', roles: [], associations: [] },
+      { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', mail : 'jane.doe@example.com', userPassword: 'password', roles: [], associations: [] },
+      { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', mail : 'bob.smith@example.com', userPassword: 'password', roles: [], associations: [] }
     ],
     name: 'Association test',
+    description: '',
     roles: [],
     minutes: []
   }
@@ -54,7 +55,7 @@ describe('AssociationsService', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve(associations[0]);
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => resultExpected);
-      expect(await associationService.createAssociation({ idUsers: [1, 2, 3], name: 'Association test' })).toBe(await resultExpected);
+      expect(await associationService.createAssociation({ idUsers: [1, 2, 3], name: 'Association test', description: '' })).toBe(await resultExpected);
     });
   });
 
@@ -77,7 +78,7 @@ describe('AssociationsService', () => {
   describe('getMembersOfAssociation', () => {
     it('should return an array of associations', async () => {
       const resultExpected = Promise.all([
-        { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'doe.john', userPassword: 'password', roles: []}
+        { id: 0, lastName: 'Doe', firstName: 'John', age: 30, userName: 'doe.john', mail : 'doe.john@example.com', userPassword: 'password', roles: [], associations: []}
       ]);
       jest.spyOn(associationService, 'getMembersOfAssociation').mockImplementation(() => resultExpected);
       expect(await associationService.getMembersOfAssociation(0)).toBe(await resultExpected);

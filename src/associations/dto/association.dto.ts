@@ -4,6 +4,7 @@ import { AssociationMinuteDto } from "./association.minute";
 export class AssociationDto {
     public id: number;
     public name: string;
+    public description: string;
     public members: Member[];
     public minutes: AssociationMinuteDto[];
 }

@@ -38,6 +38,14 @@ export class User {
     @Column({
         type: "varchar",
         length: 100,
+        nullable: false,
+        unique: true,
+    })
+    mail: string;
+
+    @Column({
+        type: "varchar",
+        length: 100,
         nullable: false
     })
     userPassword: string;

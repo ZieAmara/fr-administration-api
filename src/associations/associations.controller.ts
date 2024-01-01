@@ -31,6 +31,7 @@ export class AssociationsController {
 
         newAssociation.id = association.id;
         newAssociation.name = association.name;
+        newAssociation.description = association.description;
         newAssociation.members = await this.usersToMembersDto(association.id, association.users);
         newAssociation.minutes = await this.minutesToAssociationMinutesDto(association.minutes);
 
@@ -59,6 +60,7 @@ export class AssociationsController {
             member.firstName = user.firstName;
             member.lastName = user.lastName;
             member.userName = user.userName;
+            member.mail = user.mail;
             member.age = user.age;
             member.role = user.roles 
                 ? user.roles

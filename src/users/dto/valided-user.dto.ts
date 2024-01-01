@@ -31,4 +31,12 @@ export class UserValidedDto {
     })
     userName: string
 
+    @ApiProperty({
+        type: String,
+        description: "The mail of the user",
+        example: "HxSgM@example.com",
+        uniqueItems: true,
+    })
+    mail: string
+
 }

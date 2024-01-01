@@ -15,4 +15,11 @@ export class CreateAssociationDto {
         example: "neighborhood youth association",
     })
     name: string;
+
+    @ApiProperty({
+        type: String,
+        description: "The description of this association",
+        example: "We are a neighborhood youth association",
+    })
+    description: string;
 }

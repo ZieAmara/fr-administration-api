@@ -32,6 +32,7 @@ export class UsersController {
         newUser.lastName = user.lastName;
         newUser.firstName = user.firstName;
         newUser.userName = user.userName;
+        newUser.mail = user.mail;
         newUser.age = user.age;
         newUser.roles = await this.rolesToRolesDto(user.roles);
 
@@ -143,7 +144,7 @@ export class UsersController {
 
     @ApiHeader({
         name: 'Get One User',
-        description: 'This endpoint allows you to get one user.',
+        description: 'This endpoint allows you to get one user by id.',
     })
     @Get(':idUser')
     @ApiResponse({ status: HttpStatus.OK, description: 'The user has been successfully retrieved.'})
@@ -154,6 +155,29 @@ export class UsersController {
     public async getUserById(@Param('idUser', ParseIntPipe) idUser: number): Promise<UserDto> {
         try {
             const user = await this.usersService.getUserById(idUser);
+            if (user) {
+                return await this.userToUserDto(user);
+            }
+        } catch (error) {
+            console.log(error);
+            this.handleError(error);
+        }
+    }
+
+
+    @ApiHeader({
+        name: 'Get one User',
+        description: 'This endpoint allows you to get one user by userName.',
+    })
+    @Get('userName/:userName')
+    @ApiResponse({ status: HttpStatus.OK, description: 'The user has been successfully retrieved.'})
+    @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The user has not been retrieved.' })
+    @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
+    @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'User not found.' })
+    @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error.' })
+    public async getUserByUserName(@Param('userName') userName: string): Promise<UserDto> {
+        try {
+            const user = await this.usersService.getUserByUserName(userName);
             if (user) {
                 return await this.userToUserDto(user);
             }

@@ -7,10 +7,10 @@ import { CreateUserDto } from '../dto/create-user.dto';
 
 
 const usersSetExpected : User[] = [
-  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456', roles: [] },
-  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', userPassword: '000000', roles: [] },
-  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', userPassword: 'Lee123', roles: [] },
-  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', userPassword: 'Sow1&3', roles: [] },
+  { id: 0, lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456', roles: [] },
+  { id: 1, lastName: 'Doe', firstName: 'Jane', age: 24, userName: 'jane.doe', mail: 'jane.doe@example.com', userPassword: '000000', roles: [] },
+  { id: 2, lastName: 'Lee', firstName: 'Alex', age: 15, userName: 'alex.lee', mail: 'alex.lee@example.com', userPassword: 'Lee123', roles: [] },
+  { id: 3, lastName: 'Sow', firstName: 'Ali', age: 51, userName: 'ali.sow', mail: 'ali.sow@example.com', userPassword: 'Sow1&3', roles: [] },
 ];
 
 export type MockType<T> = {
@@ -53,7 +53,7 @@ describe('UsersService', () => {
     
     it('should create an user', async () => {
       const createUserDto: CreateUserDto = {
-        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456',
+        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456',
       };
       const {id, userPassword, roles, ...resultExpected} = usersSetExpected[0];
       await expect(usersService.createUser(createUserDto).then(
@@ -69,7 +69,7 @@ describe('UsersService', () => {
 
     it ('The user created have a hashed password', async () => {
       const createUserDto: CreateUserDto = {
-        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', userPassword: '123456',
+        lastName: 'Brou', firstName: 'John', age: 30, userName: 'john.brou', mail: 'john.brou@example.com', userPassword: '123456',
       };
       await usersService.createUser(createUserDto).then(
         user => {

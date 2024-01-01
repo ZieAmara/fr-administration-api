@@ -27,6 +27,14 @@ export class UpdateUserDto {
     userName?: string;
 
     @ApiProperty({
+        type: String,
+        description: "The mail of the user",
+        example: "HxSgM@example.com",
+        required: false
+    })
+    mail?: string;
+
+    @ApiProperty({
         type: Number,
         description: "The age of the user",
         example: 30,

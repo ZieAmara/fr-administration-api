@@ -16,6 +16,12 @@ export class Association {
     })
     name: string;
 
+    @Column({
+        type: 'text',
+        nullable: true
+    })
+    description: string;
+
     @ManyToMany(() => User)
     @JoinTable({
         name: 'association_users',

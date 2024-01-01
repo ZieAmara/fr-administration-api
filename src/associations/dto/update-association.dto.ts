@@ -17,4 +17,12 @@ export class UpdateAssociationDto {
         required: false
     })
     name?: string;
+
+    @ApiProperty({
+        type: String,
+        description: "The description of this association",
+        example: "We are a neighborhood youth association",
+        required: false
+    })
+    description?: string;
 }

@@ -20,6 +20,7 @@ export class UsersService {
             firstName: createUserDto.firstName, 
             age: createUserDto.age,
             userName: createUserDto.userName,
+            mail: createUserDto.mail,
             userPassword: await this.hashPassword(createUserDto.userPassword)
         });
         await this.userRepository.save(user);
@@ -66,7 +67,7 @@ export class UsersService {
 
     public async getUserByUserName(userName: string): Promise<User> {
         return await this.userRepository.findOne({
-            where: {userName: userName},
+            where: [{userName: userName},{mail: userName}],
             relations: ['roles']
         });
     }

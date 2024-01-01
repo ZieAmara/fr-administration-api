@@ -5,6 +5,7 @@ export class UserDto {
     public lastName: string;
     public firstName: string;
     public userName: string;
+    public mail: string;
     public age: number;
     public roles: UserRole[];
 }

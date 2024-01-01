@@ -3,7 +3,6 @@ import { AssociationsController } from '../associations.controller';
 import { AssociationsService } from '../associations.service';
 import { Repository } from 'typeorm';
 import { UsersModule } from '../../users/users.module';
-import { Member } from '../dto/association.member';
 
 export type MockType<T> = {
   [P in keyof T]?: jest.Mock<{}>;
@@ -17,11 +16,12 @@ const associations = [
   {
     id: 0,
     users: [
-      { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', userPassword: 'password', roles: [] },
-      { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', userPassword: 'password', roles: [] },
-      { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', userPassword: 'password', roles: [] }
+      { id: 1, firstName: 'John', lastName: 'Doe', age: 30, userName: 'john.doe', mail : 'john.doe@example.com', userPassword: 'password', roles: [], associations: [] },
+      { id: 2, firstName: 'Jane', lastName: 'Doe', age: 28, userName: 'jane.doe', mail : 'jane.doe@example.com', userPassword: 'password', roles: [], associations: [] },
+      { id: 3, firstName: 'Bob', lastName: 'Smith', age: 35, userName: 'bob.smith', mail : 'bob.smith@example.com', userPassword: 'password', roles: [], associations: [] }
     ],
     name: 'Association test',
+    description: '',
     roles: [],
     minutes: []
   }
@@ -30,12 +30,13 @@ const associations = [
 const resultExpectedDto = [
   {
     id: 0,
-    name: 'Association test', 
     members: [
-      { id: 1, firstName: 'John', lastName: 'Doe', userName: 'john.doe', age: 30, role: '' },
-      { id: 2, firstName: 'Jane', lastName: 'Doe', userName: 'jane.doe', age: 28, role: '' },
-      { id: 3, firstName: 'Bob', lastName: 'Smith', userName: 'bob.smith', age: 35, role: '' }
+      { id: 1, firstName: 'John', lastName: 'Doe', userName: 'john.doe', mail: 'john.doe@example.com', age: 30, role: '' },
+      { id: 2, firstName: 'Jane', lastName: 'Doe', userName: 'jane.doe', mail: 'jane.doe@example.com', age: 28, role: '' },
+      { id: 3, firstName: 'Bob', lastName: 'Smith', userName: 'bob.smith', mail: 'bob.smith@example.com', age: 35, role: '' }
     ],
+    name: 'Association test', 
+    description: '',
     minutes: []
   }
 ]
@@ -67,14 +68,16 @@ describe('AssociationsController', () => {
     expect(associationController).toBeDefined();
   });
 
+
   describe('createAssociation', () => {
     it('should return an association', async () => {
       const associationExpected = Promise.resolve(associations[0]);
       const resultExpected = Promise.resolve(resultExpectedDto[0]);
       jest.spyOn(associationService, 'createAssociation').mockImplementation(() => associationExpected);
-      expect(await associationController.createAssociation({idUsers: [1, 2, 3], name: 'Association test'})).toEqual(await resultExpected);
+      expect(await associationController.createAssociation({idUsers: [1, 2, 3], name: 'Association test', description: ''})).toEqual(await resultExpected);
     });
   });
+
 
   describe('getAllAssociations', () => {
     it('should return an array of associations', async () => {
@@ -84,6 +87,7 @@ describe('AssociationsController', () => {
     });
   });
 
+
   describe('getAssociationById', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve(associations[0]);
@@ -91,6 +95,7 @@ describe('AssociationsController', () => {
       expect(await associationController.getAssociationById(0)).toEqual(await resultExpectedDto[0]);
     });
   });
+
 
   describe('getMembersOfAssociation', () => {
     it('should return an array of associations', async () => {
@@ -101,6 +106,7 @@ describe('AssociationsController', () => {
     });
   });
 
+
   describe('updateAssociation', () => {
     it('should return an association', async () => {
       const resultExpected = Promise.resolve(associations[0]);
@@ -109,6 +115,7 @@ describe('AssociationsController', () => {
     });
   });
 
+  
   describe('deleteAssociation', () => {
     it('should return true', async () => {
       const resultExpected = Promise.resolve(true);

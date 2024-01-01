@@ -41,7 +41,10 @@ async function bootstrap() {
 
   app.enableCors(corsOptions);
   
-  await app.listen(3001);
+  const port = 3001;
+  await app.listen(port, () => {
+    console.log(`Application is running on port: ${ port }`);
+  });
 
 }
 bootstrap();
