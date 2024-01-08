@@ -5,10 +5,11 @@ import { DatabaseModule } from '../database/database.module';
 import { UsersModule } from '../users/users.module';
 import { AssociationsModule } from '../associations/associations.module';
 import { roleProviders } from './role-table-db/role.providers';
+import { RoleDTOMapping } from './dto/role.dto.mapping';
 
 @Module({
   controllers: [RoleController],
-  providers: [...roleProviders, RoleService],
+  providers: [...roleProviders, RoleService, RoleDTOMapping],
   imports: [DatabaseModule, UsersModule, AssociationsModule]
 })
 export class RoleModule {}

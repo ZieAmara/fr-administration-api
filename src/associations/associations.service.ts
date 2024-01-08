@@ -39,7 +39,7 @@ export class AssociationsService {
 
     public async getAllAssociations(): Promise<Association[]> {
         const associations = await this.associationsRepository.find({
-            relations: ['users', 'minutes']
+            relations: ['users', 'minutes', 'roles']
         });
         return associations;
     }
@@ -48,7 +48,7 @@ export class AssociationsService {
     public async getAssociationById(associationId: number): Promise<Association> {
         const association = await this.associationsRepository.findOne({
             where: {id: associationId},
-            relations: ['users', 'minutes']
+            relations: ['users', 'minutes', 'roles']
         });
         return association;
     }

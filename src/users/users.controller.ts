@@ -1,15 +1,10 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put, UseGuards, ValidationPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './user-table-db/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from '../auth/guards/jwt.guard';
-import { QueryFailedError } from 'typeorm';
-import { Role } from 'src/role/role-table-db/role.entity';
 import { UserDto } from './dto/user.dto';
 import { UserRole } from './dto/user.role';
-import { Association } from 'src/associations/association-table-db/association.entity';
 import { UserAssociationDto } from './dto/user.association';
 import { UserDTOMapping } from './dto/user.dto.mapping';
 

@@ -1,15 +1,12 @@
 import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { AssociationsService } from './associations.service';
 import { CreateAssociationDto } from './dto/create-association.dto';
-import { Association } from 'src/associations/association-table-db/association.entity';
 import { UpdateAssociationDto } from './dto/update-association.dto';
-import { User } from 'src/users/user-table-db/user.entity';
 import { ApiHeader, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AssociationDto } from './dto/association.dto';
-import { QueryFailedError } from 'typeorm';
 import { Member } from './dto/association.member';
 import { AssociationMinuteDto } from './dto/association.minute';
-import { Minute } from 'src/minute/minute-table-db/minute.entity';
+import { AssociationDtoMapping } from './dto/association.dto.mapping';
 
 @ApiTags('Associations Endpoints')
 @Controller('association')
@@ -17,120 +14,8 @@ export class AssociationsController {
 
     constructor(
         private readonly associationService: AssociationsService,
+        private readonly associationDtoMapping: AssociationDtoMapping,
     ) {}
-
-
-    /**
-     * DTO Mapping 
-     * from Association to AssociationDto
-     * @param association : Association
-     * @returns newAssociation : AssociationDto
-     */
-    private async associationToAssociationDto(association: Association): Promise<AssociationDto> {
-        const newAssociation = new AssociationDto();
-
-        newAssociation.id = association.id;
-        newAssociation.name = association.name;
-        newAssociation.description = association.description;
-        newAssociation.members = await this.usersToMembersDto(association.id, association.users);
-        newAssociation.minutes = await this.minutesToAssociationMinutesDto(association.minutes);
-
-        return newAssociation;
-    }
-
-
-    /**
-     * DTO Mapping 
-     * from User to Member
-     * @param idAssociatoion : number
-     * @param users : User[]
-     * @returns Promise<Member[]>
-     */
-    private async usersToMembersDto(idAssociation: number, users: User[]): Promise<Member[]> {
-        const members: Member[] = [];
-
-        if (!users || users.length === 0) {
-            return members;
-        }
-
-        users.forEach(user => {
-            const member = new Member();
-
-            member.id = user.id;
-            member.firstName = user.firstName;
-            member.lastName = user.lastName;
-            member.userName = user.userName;
-            member.mail = user.mail;
-            member.age = user.age;
-            member.role = user.roles 
-                ? user.roles
-                    .map(role => (role.association.id === idAssociation) ? role.name : null)
-                    .filter(role => role !== null)
-                    .join(', ')
-                : '';
-
-            members.push(member);
-        });
-
-        return members
-    }
-
-
-    /**
-     * DTO Mapping 
-     * from Minute to AssociationMinuteDto
-     * @param minutes 
-     * @returns Promise<AssociationMinuteDto[]>
-     */
-    private async minutesToAssociationMinutesDto(minutes: Minute[]): Promise<AssociationMinuteDto[]> {
-        const newMinutes: AssociationMinuteDto[] = [];
-
-        if (!minutes || minutes.length === 0) {
-            return newMinutes;
-        }
-
-        minutes.forEach(minute => {
-            const newMinute = new AssociationMinuteDto();
-
-            newMinute.id = minute.id;
-            newMinute.content = minute.content;
-            newMinute.date = minute.date;
-            minute.voters.forEach(user => {
-                newMinute.voters.push(user.id);
-            });
-
-            newMinutes.push(newMinute);
-        });
-
-        return newMinutes
-    }
-
-
-    /**
-     * Handle error
-     * @param error 
-     * @throws HttpException or QueryFailedError
-     */
-    private handleError(error: any) {
-        if (error instanceof QueryFailedError) {
-            throw new HttpException(error.message, HttpStatus.CONFLICT);
-        }
-        if (error instanceof HttpException) {
-            switch (error.getStatus()) {
-                case HttpStatus.BAD_REQUEST:
-                    throw new HttpException(error.message, HttpStatus.BAD_REQUEST)
-                case HttpStatus.CONFLICT:
-                    throw new HttpException(error.message, HttpStatus.CONFLICT)
-                case HttpStatus.FORBIDDEN:
-                    throw new HttpException(error.message, HttpStatus.FORBIDDEN)
-                case HttpStatus.NOT_FOUND:
-                    throw new HttpException(error.message, HttpStatus.NOT_FOUND)
-                default:
-                    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-        }
-        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR)
-    }
 
 
     @ApiHeader({
@@ -145,10 +30,10 @@ export class AssociationsController {
     public async createAssociation(@Body() createAssociationDto: CreateAssociationDto): Promise<AssociationDto> {
         try {
             const associationCreated = await this.associationService.createAssociation(createAssociationDto);
-            return await this.associationToAssociationDto(associationCreated);
+            return await this.associationDtoMapping.associationToAssociationDto(associationCreated);
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.associationDtoMapping.handleError(error);
         }
     }
 
@@ -167,12 +52,12 @@ export class AssociationsController {
             const allAssociationsDto: AssociationDto[] = [];
             const associations = await this.associationService.getAllAssociations();
             for (const association of associations) {
-                allAssociationsDto.push(await this.associationToAssociationDto(association));
+                allAssociationsDto.push(await this.associationDtoMapping.associationToAssociationDto(association));
             }
             return allAssociationsDto
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.associationDtoMapping.handleError(error);
         }
     }
 
@@ -192,7 +77,7 @@ export class AssociationsController {
         if (!association) {
             throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
-        return await this.associationToAssociationDto(association);
+        return await this.associationDtoMapping.associationToAssociationDto(association);
     }
 
 
@@ -213,11 +98,11 @@ export class AssociationsController {
         }
         try {
             const minutes = await this.associationService.getMinutesOfAssociation(idAssociation);
-            const newMinutes = await this.minutesToAssociationMinutesDto(minutes);
+            const newMinutes = await this.associationDtoMapping.minutesToAssociationMinutesDto(minutes);
             return newMinutes
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.associationDtoMapping.handleError(error);
         }
     }
 
@@ -239,11 +124,11 @@ export class AssociationsController {
         }
         try {
             const users = await this.associationService.getMembersOfAssociation(idAssociation);
-            const members = await this.usersToMembersDto(idAssociation, users);
+            const members = await this.associationDtoMapping.usersToMembersDto(idAssociation, users);
             return members
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.associationDtoMapping.handleError(error);
         }
     }
 
@@ -264,10 +149,10 @@ export class AssociationsController {
             throw new HttpException(`Could not find a association with the id ${idAssociation}`, HttpStatus.NOT_FOUND)
         }
         try {
-            return await this.associationToAssociationDto(associationUpdated);
+            return await this.associationDtoMapping.associationToAssociationDto(associationUpdated);
         } catch (error) {
             console.log(error);
-            this.handleError(error);
+            this.associationDtoMapping.handleError(error);
         }
     }
 
