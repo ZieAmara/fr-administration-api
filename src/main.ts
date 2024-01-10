@@ -32,8 +32,14 @@ async function bootstrap() {
     referrerPolicy: { policy: 'no-referrer' }, // Referrer-Policy: no-referrer 
   }));
 
+  // Add origin allow to cors
+  const allowedOrigins = [
+    'http://localhost',
+    'http://localhost:4200',
+  ];
+
   const corsOptions = {
-    origin: 'http://localhost:4200',
+    origin: allowedOrigins,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
