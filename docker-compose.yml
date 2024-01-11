@@ -37,8 +37,8 @@ services:
       - backend
 
 volumes:
-  fr-association-database:
-  fr-association-api:
+  fr-association-database-volume:
+  fr-association-api-volume:
 
 networks:
   backend:
