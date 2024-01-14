@@ -41,4 +41,12 @@ export class UpdateUserDto {
         required: false
     })
     age?: number;
+
+    @ApiProperty({
+        type: String,
+        description: "The password of the user",
+        example: "password",
+        required: false
+    })
+    userPassword?: string;
 }

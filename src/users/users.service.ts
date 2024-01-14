@@ -5,6 +5,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt'
 import { Role } from 'src/role/role-table-db/role.entity';
 import { Association } from 'src/associations/association-table-db/association.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -94,7 +95,7 @@ export class UsersService {
     }
 
 
-    public async updateUser(idUser: number, updateUserDto): Promise<User> {
+    public async updateUser(idUser: number, updateUserDto: UpdateUserDto): Promise<User> {
         const user = this.userRepository.findOne({where: {id: idUser}});
         if (await user) {
             if (updateUserDto.lastName) {
@@ -113,7 +114,7 @@ export class UsersService {
                 (await user).mail = updateUserDto.mail;
             }
             if (updateUserDto.userPassword) {
-                (await user).userPassword = updateUserDto.userPassword;
+                (await user).userPassword = await this.hashPassword(updateUserDto.userPassword);
             }
 
             await this.userRepository.save(await user);

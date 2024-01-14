@@ -1,3 +1,4 @@
+import { Message } from "src/message/message-table-db/message.entity";
 import { Association } from "../../associations/association-table-db/association.entity";
 import { Role } from "../../role/role-table-db/role.entity";
 import { Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -40,7 +41,6 @@ export class User {
         type: "varchar",
         length: 100,
         nullable: false,
-        unique: true,
     })
     mail: string;
 
@@ -61,4 +61,9 @@ export class User {
     })
     roles: Role[];
 
+    @OneToMany(() => Message, message => message.usersDestinataires, {
+        cascade: true,
+        onDelete: 'CASCADE'
+    })
+    messages: Message[];
 }
