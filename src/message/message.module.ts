@@ -12,8 +12,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
     imports: [
         DatabaseModule, 
         UsersModule,
-        ClientsModule.register([
-          {
+        ClientsModule.register([{
             name: 'RMQ_SERVICE', 
             transport: Transport.RMQ,
             options: {
@@ -23,8 +22,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
                 durable: true,
               },
             },
-          },
-        ]),
+        },]),
     ],
 })
 export class MessageModule {}
