@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Inject, Param, ParseIntPipe, Put } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Inject, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { MessageService } from "./message.service";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
@@ -23,7 +23,7 @@ export class MessageController {
         name: 'Create and send a message',
         description: 'This endpoint allows you to create and send a message.',
     })
-    @Put('send-message')
+    @Post('send-message')
     @ApiResponse({ status: HttpStatus.OK, description: 'The message has been successfully sent.' })
     @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'The message has not been sent.' })
     @ApiResponse({ status: HttpStatus.FORBIDDEN, description: 'Forbidden.' })
