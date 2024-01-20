@@ -21,6 +21,7 @@ async function bootstrap() {
   const allowedOrigins = [
     'http://localhost',
     'http://localhost:4200',
+    'http://localhost:9090',
   ];
 
   const corsOptions = {
@@ -33,13 +34,6 @@ async function bootstrap() {
   app.enableCors(corsOptions);
 
   app.use(helmet({
-    /*contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", 'trusted-scripts.com'],
-        styleSrc: ['style.com'],
-      },
-    },*/
     dnsPrefetchControl: false, // Desable DNS prefetching for performance
     frameguard: { action: 'deny' }, // Stop clickjacking attacks by not allowing iframes to run in the browser window
     hsts: { maxAge: 31536000, includeSubDomains: true }, // Strict-Transport-Security header for modern browsers (Prevent MIME-sniffing)
