@@ -3,7 +3,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
 
@@ -17,21 +16,6 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, configSwagger);
   SwaggerModule.setup('api', app, document);
-
-  app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", 'trusted-scripts.com'],
-        styleSrc: ['style.com'],
-      },
-    },
-    dnsPrefetchControl: false, // Desable DNS prefetching for performance
-    frameguard: { action: 'deny' }, // Stop clickjacking attacks by not allowing iframes to run in the browser window
-    hsts: { maxAge: 31536000, includeSubDomains: true }, // Strict-Transport-Security header for modern browsers (Prevent MIME-sniffing)
-    noSniff: true, // X-Content-Type-Options: nosniff (Prevent MIME-sniffing)
-    referrerPolicy: { policy: 'no-referrer' }, // Referrer-Policy: no-referrer 
-  }));
 
   // Add origin allow to cors
   const allowedOrigins = [
@@ -47,6 +31,22 @@ async function bootstrap() {
   };
 
   app.enableCors(corsOptions);
+
+  app.use(helmet({
+    /*contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", 'trusted-scripts.com'],
+        styleSrc: ['style.com'],
+      },
+    },*/
+    dnsPrefetchControl: false, // Desable DNS prefetching for performance
+    frameguard: { action: 'deny' }, // Stop clickjacking attacks by not allowing iframes to run in the browser window
+    hsts: { maxAge: 31536000, includeSubDomains: true }, // Strict-Transport-Security header for modern browsers (Prevent MIME-sniffing)
+    noSniff: true, // X-Content-Type-Options: nosniff (Prevent MIME-sniffing)
+    referrerPolicy: { policy: 'no-referrer' }, // Referrer-Policy: no-referrer 
+  }));
+
   
   const port = 3000;
   await app.listen(port, () => {
